@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentEval Dashboard - {{ title }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .meta-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .meta-item {
+            text-align: center;
+        }
+
+        .meta-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .meta-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .stat-card.success {
+            border-left-color: #28a745;
+        }
+
+        .stat-card.warning {
+            border-left-color: #ffc107;
+        }
+
+        .stat-card.danger {
+            border-left-color: #dc3545;
+        }
+
+        .stat-card.info {
+            border-left-color: #17a2b8;
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 5px;
+        }
+
+        .stat-subtitle {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .charts-section {
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .campaigns-section {
+            padding: 30px;
+        }
+
+        .campaigns-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .campaigns-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .campaigns-table th,
+        .campaigns-table td {
+            padding: 15px;
+            text-align: left;
+        }
+
+        .campaigns-table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .campaigns-table tbody tr {
+            border-bottom: 1px solid #e9ecef;
+            transition: background 0.2s;
+        }
+
+        .campaigns-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .campaigns-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .score-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .score-fill.medium {
+            background: linear-gradient(90deg, #ffc107 0%, #fd7e14 100%);
+        }
+
+        .score-fill.low {
+            background: linear-gradient(90deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .link-button {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .link-button:hover {
+            background: #5568d3;
+        }
+
+        footer {
+            padding: 30px;
+            text-align: center;
+            background: #f8f9fa;
+            color: #6c757d;
+            font-size: 0.9rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .export-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 30px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+            transition: all 0.3s;
+        }
+
+        .export-button:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AgentEval Dashboard</h1>
+            <p>{{ subtitle | default("Comprehensive Multi-Agent Evaluation Results") }}</p>
+        </header>
+
+        <div class="meta-info">
+            <div class="meta-item">
+                <div class="meta-label">Generated</div>
+                <div class="meta-value">{{ generated_at }}</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Region</div>
+                <div class="meta-value">{{ region | upper }}</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Environment</div>
+                <div class="meta-value">{{ environment | default("production") }}</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Total Campaigns</div>
+                <div class="meta-value">{{ total_campaigns }}</div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card success">
+                <div class="stat-title">Overall Quality Score</div>
+                <div class="stat-value">{{ "%.1f" | format(overall_score * 100) }}%</div>
+                <div class="stat-subtitle">Across all campaigns</div>
+            </div>
+
+            <div class="stat-card info">
+                <div class="stat-title">Total Turns</div>
+                <div class="stat-value">{{ total_turns }}</div>
+                <div class="stat-subtitle">{{ completed_turns }} completed</div>
+            </div>
+
+            <div class="stat-card {% if failed_turns > 0 %}warning{% else %}success{% endif %}">
+                <div class="stat-title">Success Rate</div>
+                <div class="stat-value">{{ "%.1f" | format(success_rate * 100) }}%</div>
+                <div class="stat-subtitle">{{ failed_turns }} failed turns</div>
+            </div>
+
+            <div class="stat-card info">
+                <div class="stat-title">Total Evaluations</div>
+                <div class="stat-value">{{ total_evaluations }}</div>
+                <div class="stat-subtitle">{{ total_metrics }} unique metrics</div>
+            </div>
+        </div>
+
+        <div class="charts-section">
+            <h2 class="section-title">Performance Analytics</h2>
+
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <div class="chart-title">Campaign Quality Scores</div>
+                    <canvas id="scoresChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">Campaign Types Distribution</div>
+                    <canvas id="typesChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">Metric Performance Breakdown</div>
+                    <canvas id="metricsChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">Turn Completion Trend</div>
+                    <canvas id="turnsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="campaigns-section">
+            <h2 class="section-title">Campaign Details</h2>
+
+            <table class="campaigns-table">
+                <thead>
+                    <tr>
+                        <th>Campaign ID</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Turns</th>
+                        <th>Quality Score</th>
+                        <th>Duration</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for campaign in campaigns %}
+                    <tr>
+                        <td><code>{{ campaign.id[:8] }}</code></td>
+                        <td>{{ campaign.type }}</td>
+                        <td>
+                            <span class="badge badge-{{ campaign.status_class }}">
+                                {{ campaign.status }}
+                            </span>
+                        </td>
+                        <td>{{ campaign.completed_turns }}/{{ campaign.total_turns }}</td>
+                        <td>
+                            <div>{{ "%.1f" | format(campaign.score * 100) }}%</div>
+                            <div class="score-bar">
+                                <div class="score-fill {{ campaign.score_class }}"
+                                     style="width: {{ campaign.score * 100 }}%"></div>
+                            </div>
+                        </td>
+                        <td>{{ campaign.duration }}</td>
+                        <td>
+                            <a href="campaign_{{ campaign.id }}.html" class="link-button">
+                                View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <footer>
+            <p>Generated by <strong>AgentEval</strong> - AWS AI Agent Global Hackathon 2025</p>
+            <p>Powered by Amazon Bedrock (Claude Haiku 4.5, Nova Pro) + OpenTelemetry</p>
+        </footer>
+    </div>
+
+    <button class="export-button" onclick="window.print()">Export PDF</button>
+
+    <script>
+        // Chart.js default configuration
+        Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
+        Chart.defaults.color = '#495057';
+
+        // Campaign Quality Scores Chart
+        const scoresCtx = document.getElementById('scoresChart').getContext('2d');
+        new Chart(scoresCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ campaign_labels | tojson }},
+                datasets: [{
+                    label: 'Quality Score (%)',
+                    data: {{ campaign_scores | tojson }},
+                    backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Score: ' + context.parsed.y.toFixed(1) + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Campaign Types Distribution Chart
+        const typesCtx = document.getElementById('typesChart').getContext('2d');
+        new Chart(typesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ campaign_type_labels | tojson }},
+                datasets: [{
+                    data: {{ campaign_type_counts | tojson }},
+                    backgroundColor: [
+                        'rgba(102, 126, 234, 0.8)',
+                        'rgba(118, 75, 162, 0.8)',
+                        'rgba(40, 167, 69, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Metric Performance Chart
+        const metricsCtx = document.getElementById('metricsChart').getContext('2d');
+        new Chart(metricsCtx, {
+            type: 'radar',
+            data: {
+                labels: {{ metric_labels | tojson }},
+                datasets: [{
+                    label: 'Average Score',
+                    data: {{ metric_scores | tojson }},
+                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(102, 126, 234, 1)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Turn Completion Trend Chart
+        const turnsCtx = document.getElementById('turnsChart').getContext('2d');
+        new Chart(turnsCtx, {
+            type: 'line',
+            data: {
+                labels: {{ turn_trend_labels | tojson }},
+                datasets: [{
+                    label: 'Completed Turns',
+                    data: {{ turn_trend_completed | tojson }},
+                    borderColor: 'rgba(40, 167, 69, 1)',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Failed Turns',
+                    data: {{ turn_trend_failed | tojson }},
+                    borderColor: 'rgba(220, 53, 69, 1)',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
