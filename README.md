@@ -680,7 +680,6 @@ agenteval/
 
 ## 🧾 Compliance Artifacts
 
-- [LICENSE](LICENSE) (MIT)
 - [NOTICE.md](NOTICE.md) & [ATTRIBUTIONS.md](ATTRIBUTIONS.md)
 - [TEAM_INFO.md](req-docs/TEAM_INFO.md) & [CHANGE_LOG.md](req-docs/CHANGE_LOG.md)
 - [SUBMISSION_FREEZE.md](req-docs/SUBMISSION_FREEZE.md) &
