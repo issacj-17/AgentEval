@@ -43,6 +43,22 @@ repos:
           - mdformat-frontmatter
         args: ['--wrap', '100']
 
+  # Secret detection
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: |
+          (?x)^(
+            \.archive/.*|
+            \.codex_temp/.*|
+            \.codex_tmp/.*|
+            outputs/.*|
+            demo/evidence/.*|
+            \.git/.*
+          )$
+
   # Run tests on commit
   - repo: local
     hooks:
