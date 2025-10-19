@@ -65,6 +65,22 @@ Thumbs.db
 *.temp
 .temp/
 compliance_tmp/
+.codex_temp/
+.codex_tmp/
+
+# Claude Code
+.claude/
+
+# Output directories
+outputs/
 
 # Demo evidence (keep structure, ignore old runs if needed)
 demo/evidence/live-demo-logs/*.log
+demo/evidence/pulled-results/
+demo/evidence/campaign-data/
+demo/evidence/trace-reports/
+demo/evidence/reports/*.html
+demo/evidence/reports/*.json
+demo/evidence/reports/SUMMARY.md
+demo/evidence/dashboard.md
+demo/evidence/live-demo-latest.md
