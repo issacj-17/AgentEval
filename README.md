@@ -3,7 +3,6 @@
 **Multi-Agent AI Evaluation Platform with Trace-Based Root Cause Analysis**
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > **🏆 AWS AI Agent Global Hackathon 2025 Submission** **📖 For Judges**: See
 > [SUBMISSION_GUIDE.md](SUBMISSION_GUIDE.md) for quick navigation and evaluation instructions
