@@ -1,0 +1,22 @@
+{
+  "campaign_id": "6de720c6-9810-4bdc-a8b2-2b2fcb67a4d3",
+  "results": {
+    "campaign_id": "6de720c6-9810-4bdc-a8b2-2b2fcb67a4d3",
+    "timestamp": "2025-10-19T12:04:00.096265",
+    "summary": {
+      "total_turns": 3,
+      "completed_turns": 3,
+      "failed_turns": 0,
+      "average_score": 0.8757575757575758,
+      "success_rate": 1.0
+    },
+    "insights": {
+      "total_evaluations": 3
+    },
+    "demo_metadata": {
+      "start_time": "2025-10-19T11:56:06.530762",
+      "region": "us-east-1",
+      "environment": "development"
+    }
+  }
+}

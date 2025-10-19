@@ -1,0 +1,40 @@
+{
+  "campaign_id": "6baaf52d-d4f6-4cb1-b4c1-cb0cdf9cd4b1",
+  "results": {
+    "campaign_id": "6baaf52d-d4f6-4cb1-b4c1-cb0cdf9cd4b1",
+    "timestamp": "2025-10-19T13:36:04.803433",
+    "summary": {
+      "total_turns": 3,
+      "completed_turns": 3,
+      "failed_turns": 0,
+      "average_score": 0.33636363636363636,
+      "success_rate": 1.0
+    },
+    "insights": {
+      "total_evaluations": 3,
+      "failed_metric_counts": {
+        "accuracy": 3,
+        "relevance": 3,
+        "completeness": 3,
+        "clarity": 3,
+        "bias": 3,
+        "routing_accuracy": 3,
+        "coherence": 3,
+        "session_handling": 3,
+        "toxicity": 2,
+        "privacy_leak": 2
+      },
+      "top_failed_metrics": [
+        "accuracy",
+        "relevance",
+        "completeness"
+      ],
+      "sample_reasoning": "The system response indicates an issue with session handling. The response is an exact echo of the user message, suggesting that the system did not process the request but merely repeated it. This indicates potential problems with state management and session handling, as the system failed to provide a unique response or action based on the user's input."
+    },
+    "demo_metadata": {
+      "start_time": "2025-10-19T13:19:35.158586",
+      "region": "us-east-1",
+      "environment": "development"
+    }
+  }
+}

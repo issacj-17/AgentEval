@@ -1,0 +1,19 @@
+{
+  "campaign_id": "b17b3145-67cd-40b2-8440-2c20f35fcf42",
+  "campaign_type": "persona",
+  "target_url": "https://postman-echo.com/post",
+  "status": "completed",
+  "created_at": "2025-10-19T12:59:00.564712",
+  "updated_at": "2025-10-19T13:00:20.589890",
+  "config": {
+    "persona_type": "non_native_speaker",
+    "max_turns": 3.0,
+    "initial_goal": "I need help, please use simple words"
+  },
+  "stats": {
+    "completed_turns": 3.0,
+    "failed_turns": 0.0,
+    "total_turns": 3.0,
+    "avg_score": 0.24545454545454545
+  }
+}

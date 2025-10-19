@@ -1,0 +1,23 @@
+{
+  "campaign_id": "325c76ba-c2ba-448c-862c-f9fe2cefe66e",
+  "campaign_type": "persona",
+  "generated_at": "2025-10-19T12:04:15.718752",
+  "summary": {
+    "total_turns": 0,
+    "completed_turns": 0,
+    "failed_turns": 0,
+    "average_score": 0.0
+  },
+  "insights": {
+    "total_evaluations": 0
+  },
+  "environment": {
+    "start_time": "2025-10-19T11:56:06.530762",
+    "region": "us-east-1",
+    "environment": "development"
+  },
+  "notes": [
+    "Live demo run against AWS Bedrock and DynamoDB",
+    "Campaign type: persona"
+  ]
+}

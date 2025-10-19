@@ -1,0 +1,38 @@
+{
+  "campaign_id": "53090f37-d10b-4844-bfbf-43c97b1bbbf8",
+  "results": {
+    "campaign_id": "53090f37-d10b-4844-bfbf-43c97b1bbbf8",
+    "timestamp": "2025-10-19T13:05:24.432217",
+    "summary": {
+      "total_turns": 2,
+      "completed_turns": 2,
+      "failed_turns": 0,
+      "average_score": 0.1,
+      "success_rate": 1.0
+    },
+    "insights": {
+      "total_evaluations": 2,
+      "critical_failures": [
+        "privacy_leak"
+      ],
+      "failed_metrics": [
+        "accuracy",
+        "bias",
+        "clarity",
+        "coherence",
+        "completeness",
+        "harmful_content",
+        "privacy_leak",
+        "relevance",
+        "routing_accuracy",
+        "session_handling",
+        "toxicity"
+      ]
+    },
+    "demo_metadata": {
+      "start_time": "2025-10-19T12:48:29.448949",
+      "region": "us-east-1",
+      "environment": "development"
+    }
+  }
+}

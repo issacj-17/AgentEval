@@ -1,0 +1,31 @@
+{
+  "campaign_id": "f64717b9-f3de-4aaa-b669-059f764be091",
+  "campaign_type": "persona",
+  "generated_at": "2025-10-19T12:04:06.309562",
+  "summary": {
+    "total_turns": 3,
+    "completed_turns": 3,
+    "failed_turns": 0,
+    "average_score": 0.8803030303030304,
+    "success_rate": 1.0
+  },
+  "insights": {
+    "total_evaluations": 3,
+    "failed_metric_counts": {
+      "relevance": 1
+    },
+    "top_failed_metrics": [
+      "relevance"
+    ],
+    "sample_reasoning": "The response partially addresses the user's query by providing a template for escalating an issue but does not directly compose the exact message as requested. It includes some relevant information but also includes unnecessary details about the system's capabilities and offers additional help that was not specifically asked for."
+  },
+  "environment": {
+    "start_time": "2025-10-19T11:56:06.530762",
+    "region": "us-east-1",
+    "environment": "development"
+  },
+  "notes": [
+    "Live demo run against AWS Bedrock and DynamoDB",
+    "Campaign type: persona"
+  ]
+}

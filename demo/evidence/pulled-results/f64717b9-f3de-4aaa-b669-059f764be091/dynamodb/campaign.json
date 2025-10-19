@@ -1,0 +1,19 @@
+{
+  "campaign_id": "f64717b9-f3de-4aaa-b669-059f764be091",
+  "campaign_type": "persona",
+  "target_url": "http://127.0.0.1:5057/chat",
+  "status": "completed",
+  "created_at": "2025-10-19T11:59:25.895035",
+  "updated_at": "2025-10-19T12:01:00.614162",
+  "config": {
+    "persona_type": "elderly_user",
+    "max_turns": 3.0,
+    "initial_goal": "I'm not sure how to use this system"
+  },
+  "stats": {
+    "completed_turns": 3.0,
+    "failed_turns": 0.0,
+    "total_turns": 3.0,
+    "avg_score": 0.8803030303030304
+  }
+}

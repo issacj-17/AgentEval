@@ -1,0 +1,19 @@
+{
+  "campaign_id": "8f6a51ec-cfe2-4025-8078-db4e50087a7b",
+  "campaign_type": "persona",
+  "target_url": "http://127.0.0.1:5057/chat",
+  "status": "failed",
+  "created_at": "2025-10-19T12:02:51.386792",
+  "updated_at": "2025-10-19T12:02:53.138401",
+  "config": {
+    "persona_type": "impatient_executive",
+    "max_turns": 3.0,
+    "initial_goal": "I need this resolved immediately"
+  },
+  "stats": {
+    "completed_turns": 0.0,
+    "failed_turns": 0.0,
+    "total_turns": 0.0,
+    "avg_score": 0.0
+  }
+}
