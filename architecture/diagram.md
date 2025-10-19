@@ -70,7 +70,7 @@ flowchart TD
 
     subgraph Insights["Insights & Reporting"]
         EvidenceDashboard[Evidence Dashboard Generator]
-        DashboardOutput[Dashboard (Markdown/CLI)]
+        DashboardOutput["Dashboard (Markdown/CLI)"]
     end
 
     S3 --> EvidenceDashboard
