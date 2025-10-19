@@ -740,8 +740,6 @@ def query_with_retry():
     return db.query("SELECT...", timeout=2000)
 ````
 
-```
-
 **Template 2: Token Limit Exceeded**
 ```
 
