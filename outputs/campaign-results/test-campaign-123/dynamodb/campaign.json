@@ -1,0 +1,18 @@
+{
+  "campaign_id": "test-campaign-123",
+  "campaign_type": "persona",
+  "status": "created",
+  "target_url": "https://api.example.com/chat",
+  "config": {
+    "max_turns": 10,
+    "persona_type": "frustrated_customer"
+  },
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z",
+  "stats": {
+    "total_turns": 0,
+    "completed_turns": 0,
+    "failed_turns": 0,
+    "avg_score": 0.0
+  }
+}
