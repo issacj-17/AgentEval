@@ -215,7 +215,7 @@ Goal Progress: 20% - Interactions: 1 Bot: I'm here to assist you..."
 
    - Pattern-based detection of meta-response keywords
    - Immediate rejection and fallback generation
-   - < 1ms latency overhead
+   - \< 1ms latency overhead
 
 1. **Layer 2: Sentence Filtering** (`meta_markers` tuple)
 
@@ -257,8 +257,8 @@ Goal Progress: 20% - Interactions: 1 Bot: I'm here to assist you..."
 
 **Performance Impact**:
 
-- Latency: < 1ms per message
-- Memory: < 1KB (static patterns)
+- Latency: \< 1ms per message
+- Memory: \< 1KB (static patterns)
 - Cost: $0 (no additional LLM calls)
 
 See [FINAL_COMPREHENSIVE_DEMO_REPORT.md](FINAL_COMPREHENSIVE_DEMO_REPORT.md) for complete validation

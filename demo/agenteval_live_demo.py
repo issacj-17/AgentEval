@@ -26,7 +26,7 @@ import sys
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import uuid4
 
 import httpx
@@ -48,15 +48,14 @@ from agenteval.reporting.pull import pull_campaign_data
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 # Suppress noisy AWS SDK logging
-logging.getLogger('botocore').setLevel(logging.WARNING)
-logging.getLogger('boto3').setLevel(logging.WARNING)
-logging.getLogger('aioboto3').setLevel(logging.WARNING)
+logging.getLogger("botocore").setLevel(logging.WARNING)
+logging.getLogger("boto3").setLevel(logging.WARNING)
+logging.getLogger("aioboto3").setLevel(logging.WARNING)
 
 
 class LiveDemoRunner:
@@ -65,14 +64,14 @@ class LiveDemoRunner:
     def __init__(self, quick_mode: bool = False):
         self.quick_mode = quick_mode
         self.container: Container = None
-        self.campaign_ids: List[str] = []
+        self.campaign_ids: list[str] = []
         self.demo_metadata = {
             "start_time": datetime.utcnow().isoformat(),
             "region": settings.aws.region,
-            "environment": settings.app.environment
+            "environment": settings.app.environment,
         }
         self.primary_target_url: str = settings.demo.target_url
-        self.fallback_target_url: Optional[str] = settings.demo.fallback_target_url
+        self.fallback_target_url: str | None = settings.demo.fallback_target_url
         self.active_target_url: str = self.primary_target_url
         self.persona_max_turns = settings.demo.persona_max_turns
         self.redteam_max_turns = settings.demo.redteam_max_turns
@@ -80,7 +79,7 @@ class LiveDemoRunner:
         self.run_timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S")
         self.evidence_root = BASE_DIR / "demo" / "evidence"
         self.trace_reports_dir = self.evidence_root / "trace-reports"
-        self.campaign_trace_reports: Dict[str, Path] = {}
+        self.campaign_trace_reports: dict[str, Path] = {}
 
         self.evidence_root.mkdir(parents=True, exist_ok=True)
         self.trace_reports_dir.mkdir(parents=True, exist_ok=True)
@@ -118,7 +117,7 @@ class LiveDemoRunner:
         return str(response)[:200]
 
     @staticmethod
-    def _build_campaign_summary(campaign: Dict[str, Any]) -> Dict[str, Any]:
+    def _build_campaign_summary(campaign: dict[str, Any]) -> dict[str, Any]:
         """Construct a numeric summary payload from a campaign record."""
         stats = campaign.get("stats", {}) if isinstance(campaign, dict) else {}
 
@@ -136,7 +135,7 @@ class LiveDemoRunner:
         summary = {
             "total_turns": total_turns,
             "completed_turns": completed_turns,
-            "failed_turns": failed_turns
+            "failed_turns": failed_turns,
         }
 
         if avg_score is not None:
@@ -148,17 +147,15 @@ class LiveDemoRunner:
         return summary
 
     def _build_campaign_insights(
-        self,
-        campaign: Dict[str, Any],
-        evaluations: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, campaign: dict[str, Any], evaluations: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """Derive qualitative insights from stored evaluations."""
         campaign_type = campaign.get("campaign_type")
-        insights: Dict[str, Any] = {"total_evaluations": len(evaluations)}
+        insights: dict[str, Any] = {"total_evaluations": len(evaluations)}
 
         if campaign_type == CampaignType.PERSONA.value:
             fail_counter: Counter[str] = Counter()
-            sample_reasoning: Optional[str] = None
+            sample_reasoning: str | None = None
 
             for evaluation in evaluations:
                 failed = evaluation.get("pass_fail", {}).get("failed_metrics", [])
@@ -177,7 +174,9 @@ class LiveDemoRunner:
 
             if fail_counter:
                 insights["failed_metric_counts"] = dict(fail_counter)
-                insights["top_failed_metrics"] = [metric for metric, _ in fail_counter.most_common(3)]
+                insights["top_failed_metrics"] = [
+                    metric for metric, _ in fail_counter.most_common(3)
+                ]
 
             if sample_reasoning:
                 insights["sample_reasoning"] = sample_reasoning[:500]
@@ -270,7 +269,7 @@ class LiveDemoRunner:
             candidate_urls.append(self.fallback_target_url)
 
         async with httpx.AsyncClient(timeout=httpx.Timeout(5.0)) as client:
-            last_error: Optional[Exception] = None
+            last_error: Exception | None = None
             for url in candidate_urls:
                 try:
                     # Prefer HEAD to avoid mutating endpoints; fall back to GET
@@ -297,9 +296,7 @@ class LiveDemoRunner:
                         continue
                 self.active_target_url = url
                 if url != self.primary_target_url:
-                    self.print_warning(
-                        f"Primary target unreachable. Falling back to {url}"
-                    )
+                    self.print_warning(f"Primary target unreachable. Falling back to {url}")
                 else:
                     self.print_info(f"Using target endpoint: {url}")
                 return
@@ -308,8 +305,7 @@ class LiveDemoRunner:
         self.active_target_url = candidate_urls[-1]
         if last_error:
             self.print_warning(
-                f"Unable to reach configured target endpoints. "
-                f"HTTP calls may fail ({last_error})."
+                f"Unable to reach configured target endpoints. HTTP calls may fail ({last_error})."
             )
 
     async def demo_persona_campaign(self) -> str:
@@ -342,12 +338,14 @@ class LiveDemoRunner:
         first_campaign_id = None
 
         for idx, (persona_type, initial_goal) in enumerate(personas_to_run, 1):
-            self.print_info(f"[{idx}/{len(personas_to_run)}] Creating campaign for persona: {persona_type}")
+            self.print_info(
+                f"[{idx}/{len(personas_to_run)}] Creating campaign for persona: {persona_type}"
+            )
 
             campaign_config = {
                 "persona_type": persona_type,
                 "initial_goal": initial_goal,
-                "max_turns": 1 if self.quick_mode else self.persona_max_turns
+                "max_turns": 1 if self.quick_mode else self.persona_max_turns,
             }
 
             self.print_info(f"  Config: {campaign_config}")
@@ -357,7 +355,7 @@ class LiveDemoRunner:
             campaign = await orchestrator.create_campaign(
                 campaign_type=CampaignType.PERSONA,
                 target_url=self.active_target_url,
-                campaign_config=campaign_config
+                campaign_config=campaign_config,
             )
 
             campaign_id = campaign["campaign_id"]
@@ -372,19 +370,18 @@ class LiveDemoRunner:
 
             if not self.quick_mode:
                 self.print_info("")
-                self.print_info(f"  Executing campaign turns (this may take 1-2 minutes)...")
+                self.print_info("  Executing campaign turns (this may take 1-2 minutes)...")
 
                 try:
                     # Run campaign (this will make real Bedrock API calls)
                     result = await orchestrator.run_campaign(
-                        campaign_id=campaign_id,
-                        max_turns=campaign_config["max_turns"]
+                        campaign_id=campaign_id, max_turns=campaign_config["max_turns"]
                     )
 
                     turns = await self.container.dynamodb().get_turns(campaign_id, limit=10)
                     completed_turns = len(turns)
 
-                    self.print_success(f"  Campaign execution completed!")
+                    self.print_success("  Campaign execution completed!")
                     self.print_info(f"  Turns completed: {completed_turns}")
                     self.print_info(f"  Final status: {result.get('status', 'unknown')}")
 
@@ -392,8 +389,8 @@ class LiveDemoRunner:
                         self.print_info("")
                         self.print_info("  Sample conversation (truncated):")
                         for i, turn in enumerate(turns[: self._turn_sample_limit], 1):
-                            user_msg = turn.get('user_message', '')
-                            bot_msg = self._summarize_response(turn.get('system_response'))
+                            user_msg = turn.get("user_message", "")
+                            bot_msg = self._summarize_response(turn.get("system_response"))
                             self.print_info(f"    Turn {i}:")
                             self.print_info(f"      User: {user_msg[:120]}")
                             self.print_info(f"      Bot: {bot_msg}")
@@ -423,10 +420,12 @@ class LiveDemoRunner:
         campaign_config = {
             "attack_categories": attack_categories,
             "severity_threshold": "medium",
-            "max_turns": 1 if self.quick_mode else self.redteam_max_turns
+            "max_turns": 1 if self.quick_mode else self.redteam_max_turns,
         }
 
-        self.print_info(f"Creating red team campaign with ALL {len(all_attack_categories)} attack categories (20 total attacks)")
+        self.print_info(
+            f"Creating red team campaign with ALL {len(all_attack_categories)} attack categories (20 total attacks)"
+        )
         self.print_info(f"Running categories: {attack_categories}")
         self.print_info(f"Config: {campaign_config}")
         self.print_info(f"Target endpoint: {self.active_target_url}")
@@ -435,7 +434,7 @@ class LiveDemoRunner:
         campaign = await orchestrator.create_campaign(
             campaign_type=CampaignType.RED_TEAM,
             target_url=self.active_target_url,
-            campaign_config=campaign_config
+            campaign_config=campaign_config,
         )
 
         campaign_id = campaign["campaign_id"]
@@ -451,8 +450,7 @@ class LiveDemoRunner:
 
             try:
                 result = await orchestrator.run_campaign(
-                    campaign_id=campaign_id,
-                    max_turns=campaign_config["max_turns"]
+                    campaign_id=campaign_id, max_turns=campaign_config["max_turns"]
                 )
 
                 turns = await self.container.dynamodb().get_turns(campaign_id, limit=10)
@@ -465,7 +463,9 @@ class LiveDemoRunner:
                 self.print_info(f"  Evaluations stored: {len(evaluations)}")
 
                 if evaluations:
-                    vulnerabilities = [e for e in evaluations if e.get('vulnerability_detected', False)]
+                    vulnerabilities = [
+                        e for e in evaluations if e.get("vulnerability_detected", False)
+                    ]
                     self.print_info(f"  Vulnerabilities detected: {len(vulnerabilities)}")
 
             except Exception as e:
@@ -487,7 +487,9 @@ class LiveDemoRunner:
 
             for index, campaign_id in enumerate(self.campaign_ids, start=1):
                 self.print_info("")
-                self.print_info(f"[{index}/{len(self.campaign_ids)}] Storing artefacts for campaign {campaign_id}")
+                self.print_info(
+                    f"[{index}/{len(self.campaign_ids)}] Storing artefacts for campaign {campaign_id}"
+                )
 
                 campaign_record = await self.container.dynamodb().get_campaign(campaign_id)
                 if not campaign_record:
@@ -505,26 +507,26 @@ class LiveDemoRunner:
                     "timestamp": datetime.utcnow().isoformat(),
                     "summary": summary,
                     "insights": insights,
-                    "demo_metadata": self.demo_metadata
+                    "demo_metadata": self.demo_metadata,
                 }
 
                 if trace_report_path:
-                    results_data["trace_report"] = str(trace_report_path.relative_to(self.evidence_root))
+                    results_data["trace_report"] = str(
+                        trace_report_path.relative_to(self.evidence_root)
+                    )
                     self.print_success(f"  Trace report saved: {trace_report_path}")
                 else:
                     self.print_warning("  Trace report unavailable (no trace IDs found)")
 
                 result_key = f"campaigns/{campaign_id}/results.json"
                 s3_uri = await s3_client.store_results(
-                    campaign_id=campaign_id,
-                    results_data=results_data,
-                    object_key=result_key
+                    campaign_id=campaign_id, results_data=results_data, object_key=result_key
                 )
                 self.print_success(f"  Results stored in S3: {s3_uri}")
 
                 notes = [
                     "Live demo run against AWS Bedrock and DynamoDB",
-                    f"Campaign type: {campaign_record.get('campaign_type', 'unknown')}"
+                    f"Campaign type: {campaign_record.get('campaign_type', 'unknown')}",
                 ]
                 if insights.get("critical_failures"):
                     notes.append(f"Critical failures: {', '.join(insights['critical_failures'])}")
@@ -536,14 +538,14 @@ class LiveDemoRunner:
                     "summary": summary,
                     "insights": insights,
                     "environment": self.demo_metadata,
-                    "notes": notes
+                    "notes": notes,
                 }
 
                 report_uri, presigned_url = await s3_client.store_report(
                     campaign_id=campaign_id,
                     report_data=report_payload,
                     report_format=ReportFormat.JSON,
-                    filename_prefix="demo-report"
+                    filename_prefix="demo-report",
                 )
 
                 self.print_success(f"  Report stored: {report_uri}")
@@ -554,18 +556,14 @@ class LiveDemoRunner:
             self.print_error(f"S3 storage failed: {e}")
 
     async def _capture_trace_report(
-        self,
-        campaign_id: str,
-        turns: List[Dict[str, Any]]
-    ) -> Optional[Path]:
+        self, campaign_id: str, turns: list[dict[str, Any]]
+    ) -> Path | None:
         """Fetch and persist full X-Ray trace documents for a campaign."""
         if not turns:
             return None
 
         trace_ids = [
-            turn.get("trace_id")
-            for turn in turns
-            if isinstance(turn.get("trace_id"), str)
+            turn.get("trace_id") for turn in turns if isinstance(turn.get("trace_id"), str)
         ]
 
         unique_trace_ids = list({trace_id for trace_id in trace_ids if trace_id})
@@ -584,15 +582,17 @@ class LiveDemoRunner:
 
         summary_entries = []
         for trace in traces:
-            summary_entries.append({
-                "trace_id": trace.get("Id"),
-                "duration": trace.get("Duration"),
-                "segment_count": len(trace.get("Segments", [])),
-                "annotations": trace.get("Annotations", {}),
-                "has_fault": trace.get("HasFault"),
-                "has_error": trace.get("HasError"),
-                "has_throttle": trace.get("HasThrottle"),
-            })
+            summary_entries.append(
+                {
+                    "trace_id": trace.get("Id"),
+                    "duration": trace.get("Duration"),
+                    "segment_count": len(trace.get("Segments", [])),
+                    "annotations": trace.get("Annotations", {}),
+                    "has_fault": trace.get("HasFault"),
+                    "has_error": trace.get("HasError"),
+                    "has_throttle": trace.get("HasThrottle"),
+                }
+            )
 
         report_payload = {
             "campaign_id": campaign_id,
@@ -628,34 +628,28 @@ class LiveDemoRunner:
                 "campaign_id": campaign_id,
                 "event_type": "campaign.completed",
                 "timestamp": datetime.utcnow().isoformat(),
-                "metadata": {
-                    "demo": True,
-                    "region": settings.aws.region
-                }
+                "metadata": {"demo": True, "region": settings.aws.region},
             }
 
             await self.container.eventbridge().publish_campaign_event(
-                campaign_id=campaign_id,
-                event_type="campaign.completed",
-                event_data=event_data
+                campaign_id=campaign_id, event_type="campaign.completed", event_data=event_data
             )
 
             self.print_success("Campaign event published to EventBridge")
             self.print_info(f"  Event bus: {settings.aws.eventbridge_bus_name}")
-            self.print_info(f"  Event type: campaign.completed")
+            self.print_info("  Event type: campaign.completed")
 
             # Publish turn event
             self.print_info("Publishing turn event...")
 
-            turns = await self.container.dynamodb().get_turns(
-                campaign_id=campaign_id,
-                limit=1
-            )
+            turns = await self.container.dynamodb().get_turns(campaign_id=campaign_id, limit=1)
 
             if turns:
                 first_turn = turns[0]
                 turn_id = first_turn.get("turn_id") or f"{campaign_id}-turn-1"
-                agent_type = first_turn.get("agent_type") or first_turn.get("source_agent_type") or "persona"
+                agent_type = (
+                    first_turn.get("agent_type") or first_turn.get("source_agent_type") or "persona"
+                )
                 trace_id = (
                     first_turn.get("trace_id")
                     or (first_turn.get("trace") or {}).get("trace_id")
@@ -672,10 +666,7 @@ class LiveDemoRunner:
                 agent_type=agent_type,
                 trace_id=trace_id,
                 event_type="turn.completed",
-                metadata={
-                    "timestamp": datetime.utcnow().isoformat(),
-                    "demo": True
-                }
+                metadata={"timestamp": datetime.utcnow().isoformat(), "demo": True},
             )
 
             self.print_success("Turn event published")
@@ -735,14 +726,16 @@ class LiveDemoRunner:
 
             total_files = 0
             for index, campaign_id in enumerate(self.campaign_ids, start=1):
-                self.print_info(f"[{index}/{len(self.campaign_ids)}] Pulling campaign {campaign_id}...")
+                self.print_info(
+                    f"[{index}/{len(self.campaign_ids)}] Pulling campaign {campaign_id}..."
+                )
 
                 try:
                     downloaded = await pull_campaign_data(
                         container=self.container,
                         output_dir=output_dir,
                         campaign_id=campaign_id,
-                        limit=1
+                        limit=1,
                     )
 
                     file_count = len(downloaded)
@@ -764,11 +757,11 @@ class LiveDemoRunner:
             print("")
             self.print_info("📁 Directory structure:")
             self.print_info(f"  {output_dir}/")
-            self.print_info(f"    └── <campaign_id>/")
-            self.print_info(f"        ├── dynamodb/         # Campaign, turns, evaluations")
-            self.print_info(f"        └── s3/              # Reports and results")
-            self.print_info(f"            ├── results/      # Campaign results JSON")
-            self.print_info(f"            └── reports/      # Generated reports")
+            self.print_info("    └── <campaign_id>/")
+            self.print_info("        ├── dynamodb/         # Campaign, turns, evaluations")
+            self.print_info("        └── s3/              # Reports and results")
+            self.print_info("            ├── results/      # Campaign results JSON")
+            self.print_info("            └── reports/      # Generated reports")
 
         except Exception as e:
             self.print_error(f"Results pull failed: {e}")
@@ -784,28 +777,34 @@ class LiveDemoRunner:
         print("")
 
         print("✓ VALIDATED COMPONENTS:")
-        print(f"  1. AWS Bedrock - LLM agents (Persona, Red Team, Judge)")
-        print(f"  2. DynamoDB - Campaign and turn state management")
-        print(f"  3. S3 - Results and report storage")
-        print(f"  4. EventBridge - Event publishing and routing")
-        print(f"  5. X-Ray - Distributed tracing (if enabled)")
-        print(f"  6. Automatic result pulling - Local artifact storage")
+        print("  1. AWS Bedrock - LLM agents (Persona, Red Team, Judge)")
+        print("  2. DynamoDB - Campaign and turn state management")
+        print("  3. S3 - Results and report storage")
+        print("  4. EventBridge - Event publishing and routing")
+        print("  5. X-Ray - Distributed tracing (if enabled)")
+        print("  6. Automatic result pulling - Local artifact storage")
         print("")
 
-        print(f"📊 DEMO STATISTICS:")
+        print("📊 DEMO STATISTICS:")
         print(f"  Campaigns created: {len(self.campaign_ids)}")
         print(f"  Region: {self.demo_metadata['region']}")
         print(f"  Environment: {self.demo_metadata['environment']}")
-        print(f"  Duration: {(datetime.utcnow() - datetime.fromisoformat(self.demo_metadata['start_time'])).total_seconds():.1f}s")
+        print(
+            f"  Duration: {(datetime.utcnow() - datetime.fromisoformat(self.demo_metadata['start_time'])).total_seconds():.1f}s"
+        )
         print("")
 
         print("🎯 NEXT STEPS:")
         print("  1. Review pulled results locally:")
         print(f"     ls -la {self.evidence_root / 'pulled-results'}/")
-        print(f"     cat {self.evidence_root / 'pulled-results'}/<campaign_id>/dynamodb/campaign.json")
+        print(
+            f"     cat {self.evidence_root / 'pulled-results'}/<campaign_id>/dynamodb/campaign.json"
+        )
         print("")
         print("  2. View campaign data in DynamoDB:")
-        print(f"     aws dynamodb scan --table-name agenteval-campaigns --region {settings.aws.region}")
+        print(
+            f"     aws dynamodb scan --table-name agenteval-campaigns --region {settings.aws.region}"
+        )
         print("")
         print("  3. List results in S3:")
         print(f"     aws s3 ls s3://{settings.aws.s3_results_bucket}/campaigns/ --recursive")

@@ -794,7 +794,7 @@ ______________________________________________________________________
 | **LLM Invocation**      | 2-5 seconds            | Titan Lite (fallback)   |
 | **LLM Invocation**      | 1-3 seconds            | Claude Haiku (primary)  |
 | **Judge Evaluation**    | 1-2 seconds per metric | Nova Pro                |
-| **Meta-Response Check** | < 1ms                  | Pattern matching        |
+| **Meta-Response Check** | \< 1ms                 | Pattern matching        |
 | **DynamoDB Write**      | 10-50ms                | Single-digit ms typical |
 | **S3 Write**            | 50-200ms               | Depends on object size  |
 | **EventBridge Publish** | 10-50ms                | Async operation         |

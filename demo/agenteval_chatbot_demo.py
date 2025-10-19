@@ -19,10 +19,11 @@ import subprocess
 import sys
 from multiprocessing import Process
 from pathlib import Path
-from typing import Optional
 
 import httpx
 
+from agenteval.config import settings
+from agenteval.utils.live_demo_env import bootstrap_live_demo_env, refresh_settings
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SRC_ROOT = REPO_ROOT / "src"
@@ -30,9 +31,6 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
-
-from agenteval.utils.live_demo_env import bootstrap_live_demo_env, refresh_settings
-from agenteval.config import settings
 
 
 def _run_chatbot_server(host: str, port: int, log_level: str = "warning") -> None:
@@ -97,7 +95,9 @@ async def run_demo(args: argparse.Namespace) -> int:
     global settings
     settings = refreshed_settings
 
-    from demo.agenteval_live_demo import LiveDemoRunner  # Local import to capture refreshed settings
+    from demo.agenteval_live_demo import (
+        LiveDemoRunner,  # Local import to capture refreshed settings
+    )
 
     _print_model_summary()
 
@@ -105,7 +105,7 @@ async def run_demo(args: argparse.Namespace) -> int:
     print(f"Bedrock region         : {refreshed_settings.aws.region}")
     print(f"Environment            : {refreshed_settings.app.environment}")
 
-    process: Optional[Process] = None
+    process: Process | None = None
     started_locally = False
 
     try:
@@ -154,14 +154,28 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run the AgentEval live demo against the local chatbot application."
     )
-    parser.add_argument("--region", default="us-east-1", help="AWS region for Bedrock + infrastructure")
+    parser.add_argument(
+        "--region", default="us-east-1", help="AWS region for Bedrock + infrastructure"
+    )
     parser.add_argument("--host", default="127.0.0.1", help="Host interface for the chatbot server")
     parser.add_argument("--port", type=int, default=5057, help="Port for the chatbot server")
-    parser.add_argument("--startup-timeout", type=int, default=30, help="Seconds to wait for chatbot health")
-    parser.add_argument("--quick", action="store_true", help="Create campaigns without executing turns")
-    parser.add_argument("--auto-teardown", action="store_true", help="Run teardown script after a successful demo")
-    parser.add_argument("--force-teardown", action="store_true", help="Pass --force to the teardown script")
-    parser.add_argument("--use-existing-server", action="store_true", help="Do not launch the chatbot; assume it is already running")
+    parser.add_argument(
+        "--startup-timeout", type=int, default=30, help="Seconds to wait for chatbot health"
+    )
+    parser.add_argument(
+        "--quick", action="store_true", help="Create campaigns without executing turns"
+    )
+    parser.add_argument(
+        "--auto-teardown", action="store_true", help="Run teardown script after a successful demo"
+    )
+    parser.add_argument(
+        "--force-teardown", action="store_true", help="Pass --force to the teardown script"
+    )
+    parser.add_argument(
+        "--use-existing-server",
+        action="store_true",
+        help="Do not launch the chatbot; assume it is already running",
+    )
     parser.add_argument(
         "--uvicorn-log-level",
         default="warning",

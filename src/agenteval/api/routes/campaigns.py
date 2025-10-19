@@ -41,9 +41,7 @@ class CreateCampaignRequest(BaseModel):
     initial_goal: str | None = Field(None, description="Initial goal for persona")
 
     # Red team-specific config
-    attack_categories: list[str] | None = Field(
-        None, description="Attack categories for red_team"
-    )
+    attack_categories: list[str] | None = Field(None, description="Attack categories for red_team")
     severity_threshold: str | None = Field(None, description="Minimum attack severity")
     use_mutations: bool | None = Field(True, description="Enable attack mutations")
 

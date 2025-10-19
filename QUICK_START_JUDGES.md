@@ -18,7 +18,7 @@ cd aws-agents
 python demo/agenteval_demo_mock.py
 ```
 
-**Expected**: Validates all 7 product objectives in < 1 minute (no AWS required)
+**Expected**: Validates all 7 product objectives in \< 1 minute (no AWS required)
 
 ### **Step 3: Review Key Code** (2 minutes)
 
@@ -234,17 +234,17 @@ ______________________________________________________________________
 
 ## 📊 Quick Facts
 
-| Metric                 | Value                        |
-| ---------------------- | ---------------------------- |
-| **Lines of Code**      | ~8,000+                      |
-| **Test Coverage**      | 93%                          |
-| **AWS Services**       | 6                            |
-| **Agent Types**        | 3                            |
-| **Personas**           | 10                           |
-| **Attack Patterns**    | 50+                          |
-| **Evaluation Metrics** | 13                           |
-| **Demo Time**          | < 1 min (mock), 5 min (live) |
-| **Cost**               | $0 (mock), ~$0.10 (live)     |
+| Metric                 | Value                         |
+| ---------------------- | ----------------------------- |
+| **Lines of Code**      | ~8,000+                       |
+| **Test Coverage**      | 93%                           |
+| **AWS Services**       | 6                             |
+| **Agent Types**        | 3                             |
+| **Personas**           | 10                            |
+| **Attack Patterns**    | 50+                           |
+| **Evaluation Metrics** | 13                            |
+| **Demo Time**          | \< 1 min (mock), 5 min (live) |
+| **Cost**               | $0 (mock), ~$0.10 (live)      |
 
 ______________________________________________________________________
 

@@ -4,8 +4,6 @@ Unit tests for JudgeAgent (targeted key methods).
 Tests initialization, validation, and utility methods for coverage gains.
 """
 
-
-
 from agenteval.agents.judge_agent import JudgeAgent
 from agenteval.evaluation.metrics import MetricType
 

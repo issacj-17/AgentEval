@@ -21,7 +21,9 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="CLI driver for the demo chatbot")
     parser.add_argument("--url", default="http://localhost:5057/chat", help="Chat endpoint URL")
     parser.add_argument("--persona", default=None, help="Optional persona hint to send")
-    parser.add_argument("--trace", action="store_true", help="Forward generated traceparent headers")
+    parser.add_argument(
+        "--trace", action="store_true", help="Forward generated traceparent headers"
+    )
     return parser.parse_args()
 
 

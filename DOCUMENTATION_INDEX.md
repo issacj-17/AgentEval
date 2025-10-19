@@ -60,7 +60,7 @@ fix, and validation:
 - Three-layer defense implementation
 - Code changes (persona_agent.py +50 lines, tests +93 lines)
 - Complete validation across 22 campaigns
-- Performance impact (< 1ms overhead, $0 cost)
+- Performance impact (\< 1ms overhead, $0 cost)
 - Production readiness assessment
 
 **Consolidates 8 Previous Documents** (now in `.archive/consolidated/`):
@@ -110,11 +110,11 @@ ______________________________________________________________________
 
 **CHANGELOG.md Includes**:
 
-- [2.0.0] - Meta-response fix production release
-- [1.3.0] - Auto-reporting pipeline integration
-- [1.2.0] - Critical bug fixes
-- [1.1.0] - Comprehensive testing library
-- [1.0.0] - Initial production release
+- \[2.0.0\] - Meta-response fix production release
+- \[1.3.0\] - Auto-reporting pipeline integration
+- \[1.2.0\] - Critical bug fixes
+- \[1.1.0\] - Comprehensive testing library
+- \[1.0.0\] - Initial production release
 - Future release planning
 
 ______________________________________________________________________
@@ -364,7 +364,7 @@ ______________________________________________________________________
 
 1. Update the document
 1. Update "Last Updated" date in document
-1. Add entry to CHANGELOG.md under [Unreleased]
+1. Add entry to CHANGELOG.md under \[Unreleased\]
 1. Update this index if document purpose/scope changed
 1. Update statistics if document size significantly changed
 

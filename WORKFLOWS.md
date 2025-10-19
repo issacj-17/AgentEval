@@ -595,7 +595,7 @@ ______________________________________________________________________
 
 For questions or issues:
 
-- GitHub Issues: [aws-agents repository]
+- GitHub Issues: \[aws-agents repository\]
 - Documentation: This file + inline code comments
 - Tests: `tests/unit/` for examples
 

@@ -324,4 +324,4 @@ agenteval/
 
 ## License
 
-By contributing, you agree that your contributions will be licensed [].
+By contributing, you agree that your contributions will be licensed \[\].

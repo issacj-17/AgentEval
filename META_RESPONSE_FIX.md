@@ -150,7 +150,7 @@ points in the message generation pipeline.
 #### Layer 1: Early Validation
 
 **Location**: `_sanitize_user_message()` method (lines 208-223) **Purpose**: Pattern-based detection
-before message storage **Latency**: < 1ms per message
+before message storage **Latency**: \< 1ms per message
 
 **Detection Patterns**:
 
@@ -425,9 +425,9 @@ ______________________________________________________________________
 
 | Operation                       | Latency     | Comparison        |
 | ------------------------------- | ----------- | ----------------- |
-| **Meta-Response Validation**    | < 1ms       | Negligible        |
+| **Meta-Response Validation**    | \< 1ms      | Negligible        |
 | **LLM Invocation (Titan Lite)** | 2-5 seconds | Expected baseline |
-| **Pattern Matching Overhead**   | < 0.1%      | Unmeasurable      |
+| **Pattern Matching Overhead**   | \< 0.1%     | Unmeasurable      |
 
 **Conclusion**: No measurable impact on campaign execution time.
 
@@ -437,7 +437,7 @@ ______________________________________________________________________
 | -------------------- | ------------------- |
 | **Pattern List**     | ~200 bytes (static) |
 | **Runtime Overhead** | None                |
-| **Total Impact**     | < 1KB               |
+| **Total Impact**     | \< 1KB              |
 
 **Conclusion**: Negligible memory footprint.
 
@@ -473,7 +473,7 @@ ______________________________________________________________________
 - [x] **Data Integrity**: 0 meta-responses in storage
 - [x] **Detection Rate**: 100% (45+ detections)
 - [x] **Campaign Success**: 100% (22/22 completed)
-- [x] **Performance**: < 1ms overhead
+- [x] **Performance**: \< 1ms overhead
 - [x] **Cost**: $0 additional
 - [x] **Documentation**: Comprehensive
 - [x] **AWS Integration**: All services working

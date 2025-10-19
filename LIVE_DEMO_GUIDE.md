@@ -526,13 +526,13 @@ ______________________________________________________________________
 
 - Pay-per-request pricing
 - ~50-100 write requests per demo
-- Cost: < $0.01
+- Cost: \< $0.01
 
 **S3**:
 
 - Storage: ~1-2 MB total
 - Requests: ~10-20 PUTs/GETs
-- Cost: < $0.01
+- Cost: \< $0.01
 
 **EventBridge**:
 

@@ -15,7 +15,6 @@ import textwrap
 import time
 import uuid
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from pydantic import BaseModel, Field
@@ -39,8 +38,8 @@ logger = logging.getLogger(__name__)
 
 class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1, description="End-user message")
-    session_id: Optional[str] = Field(default=None, description="Existing session identifier")
-    persona: Optional[str] = Field(default=None, description="Optional persona hint for routing")
+    session_id: str | None = Field(default=None, description="Existing session identifier")
+    persona: str | None = Field(default=None, description="Optional persona hint for routing")
 
 
 class ChatResponse(BaseModel):
@@ -48,7 +47,7 @@ class ChatResponse(BaseModel):
     reply: str
     latency_ms: int
     trace_id: str
-    flags: List[str] = Field(default_factory=list)
+    flags: list[str] = Field(default_factory=list)
 
 
 class ResetResponse(BaseModel):
@@ -60,7 +59,7 @@ class ResetResponse(BaseModel):
 class Session:
     session_id: str
     persona: str = "default"
-    turns: List[Dict[str, str]] = field(default_factory=list)
+    turns: list[dict[str, str]] = field(default_factory=list)
     frustration: int = 0
 
     def record(self, role: str, content: str) -> None:
@@ -78,9 +77,9 @@ class SessionStore:
     """In-memory session tracking for demo purposes."""
 
     def __init__(self) -> None:
-        self._sessions: Dict[str, Session] = {}
+        self._sessions: dict[str, Session] = {}
 
-    def get_or_create(self, session_id: Optional[str], persona: Optional[str]) -> Session:
+    def get_or_create(self, session_id: str | None, persona: str | None) -> Session:
         if session_id and session_id in self._sessions:
             session = self._sessions[session_id]
             if persona:
@@ -101,7 +100,7 @@ class SessionStore:
         session.frustration = 0
         return count
 
-    def all_sessions(self) -> Dict[str, Session]:
+    def all_sessions(self) -> dict[str, Session]:
         return self._sessions
 
 
@@ -136,7 +135,7 @@ class DemoChatbot:
 
     async def generate_reply(self, session: Session, message: str) -> ChatResponse:
         lowered = message.lower()
-        flags: List[str] = []
+        flags: list[str] = []
 
         reply = await self._invoke_bedrock(session, message)
         if not reply:
@@ -185,7 +184,7 @@ class DemoChatbot:
             return False
         return reply.strip().lower() == user.strip().lower()
 
-    async def _invoke_bedrock(self, session: Session, message: str) -> Optional[str]:
+    async def _invoke_bedrock(self, session: Session, message: str) -> str | None:
         history = session.turns[-6:]
         history_lines = [
             f"{turn['role'].title()}: {turn['content']}" for turn in history if turn.get("content")
@@ -296,7 +295,7 @@ chatbot = DemoChatbot()
 # ---------------------------------------------------------------------------
 
 
-def extract_trace_id(traceparent: Optional[str]) -> str:
+def extract_trace_id(traceparent: str | None) -> str:
     if not traceparent:
         return uuid.uuid4().hex
 
@@ -311,12 +310,14 @@ def get_session_store() -> SessionStore:
 
 
 @app.get("/health", tags=["system"])
-async def health() -> Dict[str, str]:
+async def health() -> dict[str, str]:
     return {"status": "ok", "service": "demo-chatbot"}
 
 
 @app.get("/sessions/{session_id}", tags=["system"])
-async def session_debug(session_id: str, store: SessionStore = Depends(get_session_store)) -> Session:
+async def session_debug(
+    session_id: str, store: SessionStore = Depends(get_session_store)
+) -> Session:
     session = store.all_sessions().get(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
@@ -328,7 +329,7 @@ async def chat(
     payload: ChatRequest,
     request: Request,
     store: SessionStore = Depends(get_session_store),
-    traceparent: Optional[str] = Header(default=None),
+    traceparent: str | None = Header(default=None),
 ) -> ChatResponse:
     session = store.get_or_create(payload.session_id, payload.persona)
     session.record("user", payload.message)
@@ -345,7 +346,9 @@ async def chat(
 
 
 @app.post("/sessions/{session_id}/reset", response_model=ResetResponse, tags=["system"])
-async def reset_session(session_id: str, store: SessionStore = Depends(get_session_store)) -> ResetResponse:
+async def reset_session(
+    session_id: str, store: SessionStore = Depends(get_session_store)
+) -> ResetResponse:
     cleared = store.reset(session_id)
     return ResetResponse(session_id=session_id, cleared_turns=cleared)
 

@@ -197,9 +197,7 @@ def get_tracer() -> trace.Tracer:
     return tracer_setup.get_tracer()
 
 
-def create_span(
-    name: str, attributes: dict | None = None, parent: Span | None = None
-) -> Span:
+def create_span(name: str, attributes: dict | None = None, parent: Span | None = None) -> Span:
     """
     Create a new span
 

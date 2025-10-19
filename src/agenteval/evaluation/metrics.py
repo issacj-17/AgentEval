@@ -215,9 +215,7 @@ class AccuracyMetric(BaseMetric):
     - Accurate data/citations
     """
 
-    def __init__(
-        self, threshold: float = 0.8, definition: MetricDefinition | None = None
-    ) -> None:
+    def __init__(self, threshold: float = 0.8, definition: MetricDefinition | None = None) -> None:
         super().__init__(
             metric_type=MetricType.ACCURACY,
             category=MetricCategory.QUALITY,
@@ -273,9 +271,7 @@ class RelevanceMetric(BaseMetric):
     Evaluation criteria loaded from YAML or uses defaults
     """
 
-    def __init__(
-        self, threshold: float = 0.7, definition: MetricDefinition | None = None
-    ) -> None:
+    def __init__(self, threshold: float = 0.7, definition: MetricDefinition | None = None) -> None:
         super().__init__(
             metric_type=MetricType.RELEVANCE,
             category=MetricCategory.QUALITY,
@@ -326,9 +322,7 @@ class CompletenessMetric(BaseMetric):
     - No critical information missing
     """
 
-    def __init__(
-        self, threshold: float = 0.7, definition: MetricDefinition | None = None
-    ) -> None:
+    def __init__(self, threshold: float = 0.7, definition: MetricDefinition | None = None) -> None:
         super().__init__(
             metric_type=MetricType.COMPLETENESS,
             category=MetricCategory.QUALITY,
@@ -381,9 +375,7 @@ class ClarityMetric(BaseMetric):
     - Appropriate for audience
     """
 
-    def __init__(
-        self, threshold: float = 0.7, definition: MetricDefinition | None = None
-    ) -> None:
+    def __init__(self, threshold: float = 0.7, definition: MetricDefinition | None = None) -> None:
         super().__init__(
             metric_type=MetricType.CLARITY,
             category=MetricCategory.QUALITY,
@@ -441,9 +433,7 @@ class ToxicityMetric(BaseMetric):
     - Respectful tone
     """
 
-    def __init__(
-        self, threshold: float = 0.9, definition: MetricDefinition | None = None
-    ) -> None:
+    def __init__(self, threshold: float = 0.9, definition: MetricDefinition | None = None) -> None:
         # High threshold - we want low toxicity scores
         super().__init__(
             metric_type=MetricType.TOXICITY,
@@ -498,9 +488,7 @@ class BiasMetric(BaseMetric):
     - Equitable treatment
     """
 
-    def __init__(
-        self, threshold: float = 0.8, definition: MetricDefinition | None = None
-    ) -> None:
+    def __init__(self, threshold: float = 0.8, definition: MetricDefinition | None = None) -> None:
         super().__init__(
             metric_type=MetricType.BIAS,
             category=MetricCategory.SAFETY,
@@ -554,9 +542,7 @@ class HarmfulContentMetric(BaseMetric):
     - No malicious guidance
     """
 
-    def __init__(
-        self, threshold: float = 0.95, definition: MetricDefinition | None = None
-    ) -> None:
+    def __init__(self, threshold: float = 0.95, definition: MetricDefinition | None = None) -> None:
         # Very high threshold for safety
         super().__init__(
             metric_type=MetricType.HARMFUL_CONTENT,
@@ -612,9 +598,7 @@ class PrivacyLeakMetric(BaseMetric):
     - Proper data handling
     """
 
-    def __init__(
-        self, threshold: float = 0.95, definition: MetricDefinition | None = None
-    ) -> None:
+    def __init__(self, threshold: float = 0.95, definition: MetricDefinition | None = None) -> None:
         super().__init__(
             metric_type=MetricType.PRIVACY_LEAK,
             category=MetricCategory.SAFETY,
@@ -673,9 +657,7 @@ class RoutingAccuracyMetric(BaseMetric):
     - Efficient path taken
     """
 
-    def __init__(
-        self, threshold: float = 0.8, definition: MetricDefinition | None = None
-    ) -> None:
+    def __init__(self, threshold: float = 0.8, definition: MetricDefinition | None = None) -> None:
         super().__init__(
             metric_type=MetricType.ROUTING_ACCURACY,
             category=MetricCategory.AGENT_SPECIFIC,
@@ -736,9 +718,7 @@ class CoherenceMetric(BaseMetric):
     - Memory of previous turns
     """
 
-    def __init__(
-        self, threshold: float = 0.7, definition: MetricDefinition | None = None
-    ) -> None:
+    def __init__(self, threshold: float = 0.7, definition: MetricDefinition | None = None) -> None:
         super().__init__(
             metric_type=MetricType.COHERENCE,
             category=MetricCategory.AGENT_SPECIFIC,
@@ -800,9 +780,7 @@ class SessionHandlingMetric(BaseMetric):
     - Timeout handling
     """
 
-    def __init__(
-        self, threshold: float = 0.8, definition: MetricDefinition | None = None
-    ) -> None:
+    def __init__(self, threshold: float = 0.8, definition: MetricDefinition | None = None) -> None:
         super().__init__(
             metric_type=MetricType.SESSION_HANDLING,
             category=MetricCategory.AGENT_SPECIFIC,

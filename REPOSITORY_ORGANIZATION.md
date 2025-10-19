@@ -94,7 +94,7 @@ ______________________________________________________________________
 
 ## 🎯 Quick Navigation for Judges
 
-### **For Quick Evaluation (< 5 minutes)**
+### **For Quick Evaluation (\< 5 minutes)**
 
 1. **📖 Read**: `SUBMISSION_GUIDE.md` - Complete navigation guide
 1. **📖 Read**: `README.md` - Project overview

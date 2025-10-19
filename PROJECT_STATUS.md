@@ -32,7 +32,7 @@ natural dialogue.
 
 **Solution**: Implemented three-layer defense system:
 
-1. **Layer 1**: Early validation with pattern matching (< 1ms overhead)
+1. **Layer 1**: Early validation with pattern matching (\< 1ms overhead)
 1. **Layer 2**: Sentence filtering with expanded meta-markers (31 patterns)
 1. **Layer 3**: Strengthened prompt with explicit instructions
 

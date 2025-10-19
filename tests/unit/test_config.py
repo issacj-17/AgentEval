@@ -73,8 +73,11 @@ class TestSecurityValidationProduction:
     )
     def test_production_requires_api_key_enabled(self):
         """Test that production requires API key authentication"""
-        with patch.dict("os.environ", {"API_KEY_ENABLED": "false"}), pytest.raises(
-            ValueError, match="Cannot run in production without API key authentication"
+        with (
+            patch.dict("os.environ", {"API_KEY_ENABLED": "false"}),
+            pytest.raises(
+                ValueError, match="Cannot run in production without API key authentication"
+            ),
         ):
             Settings()
 

@@ -132,12 +132,15 @@ class TestGenerateReportCommand:
             }
         )
 
-        with patch(
-            "agenteval.application.results_service.create_results_service",
-            return_value=mock_results_service,
-        ), patch(
-            "agenteval.application.dashboard_service.create_dashboard_service",
-            return_value=mock_dashboard_service,
+        with (
+            patch(
+                "agenteval.application.results_service.create_results_service",
+                return_value=mock_results_service,
+            ),
+            patch(
+                "agenteval.application.dashboard_service.create_dashboard_service",
+                return_value=mock_dashboard_service,
+            ),
         ):
             # Execute
             exit_code = await generate_report_command(args)
@@ -164,12 +167,15 @@ class TestGenerateReportCommand:
         mock_consolidator = MagicMock()
         mock_consolidator.consolidate_reports = AsyncMock(return_value=tmp_path / "REPORT.md")
 
-        with patch(
-            "agenteval.application.results_service.create_results_service",
-            return_value=mock_results_service,
-        ), patch(
-            "agenteval.application.report_consolidator.create_report_consolidator",
-            return_value=mock_consolidator,
+        with (
+            patch(
+                "agenteval.application.results_service.create_results_service",
+                return_value=mock_results_service,
+            ),
+            patch(
+                "agenteval.application.report_consolidator.create_report_consolidator",
+                return_value=mock_consolidator,
+            ),
         ):
             # Execute
             exit_code = await generate_report_command(args)
@@ -201,15 +207,19 @@ class TestGenerateReportCommand:
         mock_consolidator = MagicMock()
         mock_consolidator.consolidate_reports = AsyncMock(return_value=tmp_path / "REPORT.md")
 
-        with patch(
-            "agenteval.application.results_service.create_results_service",
-            return_value=mock_results_service,
-        ), patch(
-            "agenteval.application.dashboard_service.create_dashboard_service",
-            return_value=mock_dashboard_service,
-        ), patch(
-            "agenteval.application.report_consolidator.create_report_consolidator",
-            return_value=mock_consolidator,
+        with (
+            patch(
+                "agenteval.application.results_service.create_results_service",
+                return_value=mock_results_service,
+            ),
+            patch(
+                "agenteval.application.dashboard_service.create_dashboard_service",
+                return_value=mock_dashboard_service,
+            ),
+            patch(
+                "agenteval.application.report_consolidator.create_report_consolidator",
+                return_value=mock_consolidator,
+            ),
         ):
             # Execute
             exit_code = await generate_report_command(args)

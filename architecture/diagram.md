@@ -36,18 +36,18 @@ flowchart TD
     Clients -->|HTTPS| API
     API --> PersonaAgent
     API --> RedTeamAgent
-    
+
     PersonaAgent --> HttpClient
     RedTeamAgent --> HttpClient
     PersonaAgent -->|LLM Invocations| Bedrock
     RedTeamAgent -->|LLM Invocations| Bedrock
     JudgeAgent -->|LLM Invocations| Bedrock
-    
+
     HttpClient -->|External APIs| TargetSystem[Target System Under Test]
     HttpClient --> TraceAnalyzer
     TraceAnalyzer --> CorrelationEngine
     CorrelationEngine --> JudgeAgent
-    
+
     PersonaAgent -->|State & Reports| DynamoDB
     RedTeamAgent -->|State & Reports| DynamoDB
     JudgeAgent -->|State & Reports| DynamoDB

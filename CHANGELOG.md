@@ -7,7 +7,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ______________________________________________________________________
 
-## [Unreleased]
+## \[Unreleased\]
 
 ### Documentation Consolidation (October 19, 2025)
 
@@ -48,7 +48,7 @@ Major documentation consolidation effort to reduce redundancy and improve mainta
 
 ______________________________________________________________________
 
-## [2.0.0] - 2025-10-19
+## \[2.0.0\] - 2025-10-19
 
 ### Meta-Response Hallucination Fix - Production Release
 
@@ -68,7 +68,7 @@ Critical bug fix for persona agent meta-response hallucinations with comprehensi
 
 - **Three-Layer Defense System**:
 
-  - Layer 1: Early validation in `_sanitize_user_message()` with pattern matching (< 1ms overhead)
+  - Layer 1: Early validation in `_sanitize_user_message()` with pattern matching (\< 1ms overhead)
   - Layer 2: Expanded meta-marker filtering (31 patterns) in sentence processing
   - Layer 3: Strengthened prompt with explicit instructions not to echo context
 
@@ -99,7 +99,7 @@ Critical bug fix for persona agent meta-response hallucinations with comprehensi
 
 ______________________________________________________________________
 
-## [1.3.0] - 2025-10-19
+## \[1.3.0\] - 2025-10-19
 
 ### Auto-Reporting Pipeline Integration
 
@@ -144,7 +144,7 @@ Complete integration of 3-phase automatic reporting pipeline into core campaign 
 
 ______________________________________________________________________
 
-## [1.2.0] - 2025-10-19
+## \[1.2.0\] - 2025-10-19
 
 ### Critical Bug Fixes
 
@@ -189,7 +189,7 @@ Multiple critical bugs discovered and fixed during comprehensive integration tes
 
 ______________________________________________________________________
 
-## [1.1.0] - 2025-10-18
+## \[1.1.0\] - 2025-10-18
 
 ### Comprehensive Testing Library
 
@@ -232,7 +232,7 @@ Expanded testing capabilities to support all available test cases.
 
 ______________________________________________________________________
 
-## [1.0.0] - 2025-10-15
+## \[1.0.0\] - 2025-10-15
 
 ### Initial Production Release
 

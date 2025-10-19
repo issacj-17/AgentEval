@@ -386,9 +386,7 @@ class DynamoDBClient:
             logger.error(f"Failed to save turn: {e}")
             raise
 
-    async def get_turns(
-        self, campaign_id: str, limit: int | None = None
-    ) -> list[dict[str, Any]]:
+    async def get_turns(self, campaign_id: str, limit: int | None = None) -> list[dict[str, Any]]:
         """
         Get all turns for a campaign
 

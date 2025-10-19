@@ -177,7 +177,7 @@ cd aws-agents
 python demo/agenteval_demo_mock.py
 ```
 
-**Expected output**: Validates all 7 product objectives in < 1 minute
+**Expected output**: Validates all 7 product objectives in \< 1 minute
 
 ### **Step 3: Review Code Quality** (10 minutes)
 
@@ -318,18 +318,18 @@ ______________________________________________________________________
 
 ## 📊 Key Metrics
 
-| Metric                  | Value                        |
-| ----------------------- | ---------------------------- |
-| **Test Coverage**       | 93%                          |
-| **Agent Types**         | 3 (Persona, Red Team, Judge) |
-| **Personas**            | 10 pre-configured            |
-| **Attack Patterns**     | 50+                          |
-| **Evaluation Metrics**  | 13                           |
-| **Lines of Code**       | ~8,000+                      |
-| **Documentation Pages** | 15+                          |
-| **AWS Services**        | 6                            |
-| **Demo Execution Time** | < 1 min (mock), 5 min (live) |
-| **Cost per Run**        | $0 (mock), ~$0.10 (live)     |
+| Metric                  | Value                         |
+| ----------------------- | ----------------------------- |
+| **Test Coverage**       | 93%                           |
+| **Agent Types**         | 3 (Persona, Red Team, Judge)  |
+| **Personas**            | 10 pre-configured             |
+| **Attack Patterns**     | 50+                           |
+| **Evaluation Metrics**  | 13                            |
+| **Lines of Code**       | ~8,000+                       |
+| **Documentation Pages** | 15+                           |
+| **AWS Services**        | 6                             |
+| **Demo Execution Time** | \< 1 min (mock), 5 min (live) |
+| **Cost per Run**        | $0 (mock), ~$0.10 (live)      |
 
 ______________________________________________________________________
 
