@@ -3,6 +3,10 @@
 **Multi-Agent AI Evaluation Platform with Trace-Based Root Cause Analysis**
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Code style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+[![Type Checked: mypy](https://img.shields.io/badge/type%20checked-mypy-blue.svg)](http://mypy-lang.org/)
+[![Security: detect-secrets](https://img.shields.io/badge/security-detect--secrets-yellow.svg)](https://github.com/Yelp/detect-secrets)
 
 > **🏆 AWS AI Agent Global Hackathon 2025 Submission** **📖 For Judges**: See
 > [SUBMISSION_GUIDE.md](SUBMISSION_GUIDE.md) for quick navigation and evaluation instructions
@@ -63,8 +67,8 @@ root cause analysis.
 1. Clone the repository and install dependencies in an isolated environment:
 
    ```bash
-   git clone https://github.com/aws-agents/aws-agents.git
-   cd aws-agents
+   git clone https://github.com/issacj-17/AgentEval.git
+   cd AgentEval
    uv venv
    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    uv pip install -e ".[dev]"
@@ -363,7 +367,7 @@ python demo/agenteval_demo_mock.py
 ```
 
 - ✓ Validates all 7 product objectives
-- ✓ < 1 minute execution time
+- ✓ \< 1 minute execution time
 - ✓ No cost
 
 #### Option 2: Live AWS Demo
@@ -450,48 +454,138 @@ print(f"Tracing Enabled: {settings.observability.enable_tracing}")
 
 ## 🏗️ Architecture
 
-Interactive Mermaid diagram: [`architecture/diagram.md`](architecture/diagram.md)\
-Render locally with [Mermaid Live Editor](https://mermaid.live/) or embed directly into docs.
+### System Overview
 
+```mermaid
+flowchart TD
+    subgraph Clients
+        WebUI[Web UI]
+        SDKClient[SDK Client]
+        CLITool[CLI Tool]
+    end
+
+    subgraph API["FastAPI + AgentEval API"]
+        Gateway[API Gateway]
+        RateLimiter[Rate Limit Middleware]
+        AuthDeps[API Key Guard]
+        CampaignRoutes[Campaign Routes]
+        ResultsRoutes[Results Routes]
+        AdminRoutes[Admin Routes]
+        HealthRoutes[Health Routes]
+    end
+
+    subgraph Orchestration["Campaign Orchestrator"]
+        PersonaAgent[Persona Agent]
+        RedTeamAgent[Red Team Agent]
+        JudgeAgent[Judge Agent]
+        TraceAnalyzer[Trace Analyzer]
+        CorrelationEngine[Correlation Engine]
+        HttpClient[HTTP Target Client]
+    end
+
+    subgraph AWS["AWS Services"]
+        Bedrock["Amazon Bedrock<br/>(Claude & Nova)"]
+        DynamoDB[(DynamoDB Tables)]
+        S3[S3 Buckets]
+        EventBridge[EventBridge Bus]
+        XRay[AWS X-Ray]
+    end
+
+    Clients -->|HTTPS| API
+    API --> PersonaAgent
+    API --> RedTeamAgent
+
+    PersonaAgent --> HttpClient
+    RedTeamAgent --> HttpClient
+    PersonaAgent -->|LLM Invocations| Bedrock
+    RedTeamAgent -->|LLM Invocations| Bedrock
+    JudgeAgent -->|LLM Invocations| Bedrock
+
+    HttpClient -->|External APIs| TargetSystem[Target System Under Test]
+    HttpClient --> TraceAnalyzer
+    TraceAnalyzer --> CorrelationEngine
+    CorrelationEngine --> JudgeAgent
+
+    PersonaAgent -->|State & Reports| DynamoDB
+    RedTeamAgent -->|State & Reports| DynamoDB
+    JudgeAgent -->|State & Reports| DynamoDB
+    CorrelationEngine -->|Artifacts| S3
+    TraceAnalyzer -->|Events| EventBridge
+    TraceAnalyzer -->|Tracing| XRay
+
+    subgraph Observability["Observability Stack"]
+        OTEL[OpenTelemetry SDK]
+        Collector[OTEL Collector]
+        MetricsProm[Metrics Exporter]
+        Logs[Structured Logging]
+    end
+
+    API --> OTEL
+    Orchestration --> OTEL
+    OTEL --> Collector --> XRay
+    OTEL --> MetricsProm
+    OTEL --> Logs
+
+    subgraph Insights["Insights & Reporting"]
+        EvidenceDashboard[Evidence Dashboard Generator]
+        DashboardOutput[Dashboard<br/>(Markdown/CLI)]
+    end
+
+    S3 --> EvidenceDashboard
+    DynamoDB --> EvidenceDashboard
+    EvidenceDashboard --> DashboardOutput
+    DashboardOutput --> CLITool
+    DashboardOutput --> WebUI
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         CLIENT LAYER                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │  Web UI      │  │  SDK Client  │  │  CLI Tool    │          │
-│  └──────────────┘  └──────────────┘  └──────────────┘          │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                        API GATEWAY LAYER                         │
-│           FastAPI + OpenTelemetry Auto-Instrumentation           │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-          ┌───────────────────┼───────────────────┐
-          ▼                   ▼                   ▼
-┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
-│  PERSONA AGENTS  │  │  RED TEAM AGENTS │  │   JUDGE AGENTS   │
-│                  │  │                  │  │                  │
-│ + Memory System  │  │ + Attack Library │  │ + Trace Analysis │
-│ + Behavior Trees │  │ + Shared KB      │  │ + Root Cause     │
-└──────────────────┘  └──────────────────┘  └──────────────────┘
-          │                   │                   │
-          └───────────────────┼───────────────────┘
-                              ▼
-                  ┌────────────────────────┐
-                  │   TARGET SYSTEM        │
-                  │  (Customer's GenAI App)│
-                  │  + OpenTelemetry       │
-                  └────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                  OBSERVABILITY LAYER (SECRET SAUCE)              │
-│  ┌──────────────────────┐    ┌──────────────────────┐           │
-│  │  OTel Collector      │───▶│   AWS X-Ray          │           │
-│  │  + Trace Correlation │    │   + Root Cause       │           │
-│  └──────────────────────┘    └──────────────────────┘           │
-└─────────────────────────────────────────────────────────────────┘
+
+For more details, see [`architecture/diagram.md`](architecture/diagram.md).
+
+### Campaign Execution Workflow
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant API
+    participant Orchestrator
+    participant PersonaAgent
+    participant RedTeamAgent
+    participant JudgeAgent
+    participant Target
+    participant Bedrock
+    participant XRay
+    participant DynamoDB
+    participant S3
+
+    Client->>API: POST /campaigns (config)
+    API->>Orchestrator: create_campaign()
+    Orchestrator->>DynamoDB: Store campaign metadata
+
+    par Persona Campaign
+        Orchestrator->>PersonaAgent: execute_turn()
+        PersonaAgent->>Bedrock: Generate user message
+        PersonaAgent->>Target: Send request + trace context
+        Target-->>PersonaAgent: Response + trace ID
+        PersonaAgent->>XRay: Fetch distributed trace
+        PersonaAgent->>JudgeAgent: Evaluate response + trace
+        JudgeAgent->>Bedrock: LLM-based evaluation
+        JudgeAgent-->>PersonaAgent: Evaluation scores
+        PersonaAgent->>DynamoDB: Store turn + evaluation
+    and Red Team Campaign
+        Orchestrator->>RedTeamAgent: execute_attack()
+        RedTeamAgent->>Bedrock: Generate attack payload
+        RedTeamAgent->>Target: Send attack + trace context
+        Target-->>RedTeamAgent: Response + trace ID
+        RedTeamAgent->>XRay: Fetch distributed trace
+        RedTeamAgent->>JudgeAgent: Evaluate vulnerability
+        JudgeAgent->>Bedrock: LLM-based evaluation
+        JudgeAgent-->>RedTeamAgent: Security scores
+        RedTeamAgent->>DynamoDB: Store attack + evaluation
+    end
+
+    Orchestrator->>S3: Generate final report
+    Orchestrator->>DynamoDB: Update campaign status
+    Orchestrator-->>API: Campaign complete
+    API-->>Client: Results + report URL
 ```
 
 ### Dependency Injection Architecture
@@ -554,43 +648,81 @@ async def create_campaign(
 
 ## 🛠️ Development
 
+For detailed development guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ### Setup Development Environment
 
 ```bash
-# Run automated setup
-./scripts/setup.sh
+# Run automated setup (includes pre-commit hooks)
+./setup-dev.sh
 
 # Or manually:
 uv venv
 source .venv/bin/activate
 uv pip install -e ".[dev]"
+pre-commit install
 ```
 
-### Running Tests
+### Code Quality Tools
+
+We use modern, fast tools for code quality:
+
+- **Ruff**: Lightning-fast linter and formatter (replaces Black, isort, flake8, bandit)
+- **mypy**: Static type checking
+- **detect-secrets**: Secret detection and prevention
+- **mdformat**: Markdown formatting
+- **pre-commit**: Automated quality checks on every commit
+
+### Quick Commands
 
 ```bash
-# Run all tests
-pytest tests/ -v --cov
+# Format code and markdown
+make format
 
-# Run specific test suite
-pytest tests/unit/ -v
+# Run linting checks
+make lint
 
-# Run with coverage report
-pytest --cov=agenteval --cov-report=html
+# Type check
+make type-check
+
+# Run all tests with coverage
+make test
+
+# Run all checks
+make test-all
 ```
 
-### Code Quality
+### Manual Code Quality Commands
 
 ```bash
-# Format code
-black src/ tests/
-isort src/ tests/
+# Format with Ruff
+ruff format src/ tests/
+ruff check --fix src/ tests/
 
-# Lint
-flake8 src/ tests/
+# Format markdown
+mdformat *.md docs/ req-docs/
 
 # Type check
 mypy src/
+
+# Scan for secrets
+detect-secrets scan --all-files
+```
+
+### Pre-commit Hooks
+
+Pre-commit hooks run automatically on every commit:
+
+- File checks (trailing whitespace, YAML/JSON validity)
+- Ruff formatting and linting
+- Type checking with mypy
+- Secret detection
+- Markdown formatting
+
+To run manually:
+
+```bash
+pre-commit run --all-files
 ```
 
 ## 📦 Project Structure

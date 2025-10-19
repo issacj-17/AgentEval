@@ -8,7 +8,6 @@ version = "1.0.0"
 description = "Multi-Agent AI Evaluation Platform with Trace-Based Root Cause Analysis"
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "MIT"}
 authors = [
     {name = "AgentEval Team", email = "team@agenteval.dev"},
 ]

@@ -1,6 +1,6 @@
 # AgentEval Notice
 
-This project is distributed under the MIT License (see `LICENSE`).
+This project is distributed for the AWS AI Agent Global Hackathon 2025.
 
 ## Third-Party Notices
 
