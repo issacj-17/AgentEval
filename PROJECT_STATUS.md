@@ -1,6 +1,6 @@
 # AgentEval - Project Status Report
 
-**Last Updated**: October 19, 2025 **Status**: ✅ **PRODUCTION READY** **Test Coverage**: 68% (622
+**Last Updated**: October 22, 2025 **Status**: ✅ **PRODUCTION READY** **Test Coverage**: 69% (630
 passing tests)
 
 ______________________________________________________________________
@@ -16,10 +16,11 @@ result pulling, multi-format reporting, and full observability.
 
 ✅ **22 Campaigns Executed** - 20 persona + 2 red team campaigns validated ✅ **Meta-Response Fix** -
 45+ detections, 100% prevention rate, 0% storage contamination ✅ **Auto-Reporting Pipeline** -
-3-phase automatic reporting (pull, HTML dashboard, markdown evidence) ✅ **All Critical Bugs Fixed**
-\- 4 bugs resolved (dashboard, attack categories, persona loop, DynamoDB scan) ✅ **Complete AWS
-Integration** - Bedrock, DynamoDB, S3, EventBridge, X-Ray ✅ **Comprehensive Test Library** - 10
-personas, 20 attacks, 13 metrics
+3-phase automatic reporting (pull, HTML dashboard, markdown evidence) ✅ **Turn-Metrics HTML Fix** -
+All 11 evaluation metrics now display correctly in campaign reports ✅ **All Critical Bugs Fixed** -
+5 bugs resolved (dashboard, attack categories, persona loop, DynamoDB scan, turn-metrics) ✅
+**Complete AWS Integration** - Bedrock, DynamoDB, S3, EventBridge, X-Ray ✅ **Comprehensive Test
+Library** - 10 personas, 20 attacks, 11 metrics
 
 ______________________________________________________________________
 
@@ -99,8 +100,7 @@ and reports.
 - **Issue**: Red team campaigns failing with invalid category
 - **Cause**: Used "obfuscation" instead of correct enum value "encoding"
 - **Fix**: Changed to "encoding" in demo code and documentation
-- **Files**: `demo/agenteval_live_demo.py`, `demo/comprehensive_demo_config.yaml`,
-  `SCALING_CAPABILITIES.md`
+- **Files**: `demo/agenteval_live_demo.py`, `demo/demo_config.yaml`, `SCALING_CAPABILITIES.md`
 - **Impact**: Red team campaigns now run with all 4 attack categories
 
 #### Bug 3: Only 1 Persona Running (Should Be 10) ✅ FIXED
@@ -117,15 +117,25 @@ and reports.
 - **Fix**: Added method in `src/agenteval/aws/dynamodb.py:712-758` with pagination support
 - **Impact**: HTML dashboards now display all campaign data from DynamoDB
 
+#### Bug 5: Empty Turn-Metrics in HTML Reports ✅ FIXED (Oct 22, 2025)
+
+- **Issue**: Turn-metrics divs empty in campaign detail HTML pages
+- **Cause**: Raw turn data passed to templates without transformation
+- **Fix**: Modified `html_renderer.py` (lines 460-480) to extract and transform metrics from
+  `turn["evaluation"]["metric_results"]` into template-ready `turn["metrics"]` list
+- **Test Coverage**: 8 comprehensive unit tests in `test_dashboard_turn_metrics.py`
+- **Impact**: All 11 evaluation metrics now display correctly with scores, confidence, reasoning,
+  and evidence
+
 ### 4. Test Coverage Improvements
 
 **Summary**:
 
 | Metric               | Value | Status                 |
 | -------------------- | ----- | ---------------------- |
-| **Overall Coverage** | 68%   | ✅ Above 50% threshold |
-| **Total Tests**      | 622   | ✅ All passing         |
-| **New Tests Added**  | 35+   | ✅ This session        |
+| **Overall Coverage** | 69%   | ✅ Above 50% threshold |
+| **Total Tests**      | 630   | ✅ All passing         |
+| **New Tests Added**  | 43+   | ✅ This session        |
 | **Coverage Goal**    | 80%   | 🎯 Target              |
 
 **High-Coverage Modules**:
@@ -497,7 +507,7 @@ ______________________________________________________________________
 **Created**:
 
 1. `tests/unit/test_persona_agent.py` - Meta-response validation tests (+93 lines)
-1. `demo/comprehensive_demo_config.yaml` - Comprehensive configuration
+1. `demo/demo_config.yaml` - Comprehensive configuration
 
 ### Documentation Created/Updated
 

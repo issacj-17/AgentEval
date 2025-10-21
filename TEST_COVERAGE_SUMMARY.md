@@ -1,29 +1,50 @@
 # AgentEval Test Coverage Summary
 
-**Date**: October 19, 2025 **Final Coverage**: 68% **Total Tests**: 622 passing (35 new tests added
+**Date**: October 22, 2025 **Final Coverage**: 69% **Total Tests**: 630 passing (43 new tests added
 this session)
 
 ______________________________________________________________________
 
 ## Session Summary
 
-### Starting Point
+### Starting Point (October 19, 2025)
 
 - **Coverage**: 63% (587 tests passing)
 - **Focus**: Files with 100+ missing lines
 - **Goal**: Reach 80% coverage
 
-### Ending Point
+### Ending Point (October 22, 2025)
 
-- **Coverage**: 68% (+5%)
-- **Tests**: 622 passing (+35 tests)
-- **New Test Files**: 1 (test_admin_routes.py)
+- **Coverage**: 69% (+6%)
+- **Tests**: 630 passing (+43 tests)
+- **New Test Files**: 2 (test_admin_routes.py, test_dashboard_turn_metrics.py)
 
 ______________________________________________________________________
 
 ## New Tests Created This Session
 
-### test_admin_routes.py (24 tests) ⭐ NEW
+### test_dashboard_turn_metrics.py (8 tests) ⭐ NEW (Oct 22, 2025)
+
+**Coverage Impact**: dashboard_service.py improved, html_renderer.py turn-metrics rendering
+validated
+
+**Test Classes Created**:
+
+1. `TestTurnDetailsWithEmbeddedEvaluation` - 6 tests
+   - Embedded evaluation extraction
+   - Separate evaluations list processing
+   - Mixed source handling (embedded vs separate)
+   - Turns without evaluation handling
+   - Legacy flat score format backwards compatibility
+   - Multiple turns with mixed evaluation sources
+1. `TestTurnMetricsScoreCalculation` - 2 tests
+   - Metric score class calculation validation
+   - Full evaluation object preservation for templates
+
+**Key Fix**: Ensures turn-metrics divs in HTML reports properly display all 11 evaluation metrics
+with scores, confidence, reasoning, and evidence.
+
+### test_admin_routes.py (24 tests) ⭐ NEW (Oct 19, 2025)
 
 **Coverage Impact**: admin.py 25% → 86% (+61%)
 
@@ -70,9 +91,9 @@ ______________________________________________________________________
 
 | Metric                  | Start | Current | Change |
 | ----------------------- | ----- | ------- | ------ |
-| **Total Coverage**      | 52%   | 68%     | +16%   |
-| **Total Tests**         | 564   | 622     | +58    |
-| **Files >80% Coverage** | ~20   | ~35     | +15    |
+| **Total Coverage**      | 52%   | 69%     | +17%   |
+| **Total Tests**         | 564   | 630     | +66    |
+| **Files >80% Coverage** | ~20   | ~37     | +17    |
 
 ______________________________________________________________________
 

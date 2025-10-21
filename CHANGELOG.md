@@ -9,6 +9,60 @@ ______________________________________________________________________
 
 ## \[Unreleased\]
 
+### HTML Rendering Fix (October 22, 2025)
+
+#### Fixed
+
+- **Turn-Metrics Display in HTML Reports** - Fixed empty turn-metrics divs in campaign detail pages
+  - Modified `html_renderer.py` (lines 460-480) to transform raw turn data before template rendering
+  - Extracts metrics from `turn["evaluation"]["metric_results"]` nested dict structure
+  - Creates `turn["metrics"]` list with name, score, and score_class for each metric
+  - All 11 evaluation metrics now display correctly in HTML reports with full details
+  - Added `_build_turn_details()` method in `dashboard_service.py` with embedded evaluation fallback
+  - 8 comprehensive unit tests in `tests/unit/test_dashboard_turn_metrics.py` covering:
+    - Embedded evaluation extraction
+    - Separate evaluations list processing
+    - Mixed source handling (embedded vs separate)
+    - Legacy flat score format backwards compatibility
+    - Full evaluation object preservation for judge reasoning display
+
+### Observability Enhancements (October 21, 2025)
+
+#### Added
+
+- **X-Ray Trace ID Format Conversion** - Automatic conversion between OpenTelemetry (32-char hex)
+  and AWS X-Ray (1-{8hex}-{24hex}) trace ID formats
+
+  - New functions: `convert_otel_trace_id_to_xray()`, `get_current_xray_trace_id()` in
+    `src/agenteval/observability/tracer.py`
+  - Enables proper X-Ray API integration while maintaining OpenTelemetry standard internally
+  - Critical fix for SECRET SAUCE trace correlation feature
+
+- **Model ID Tracing Enhancement** - Traces now show actual model IDs instead of generic "default"
+
+  - Updated `BaseAgent.invoke_llm()` to resolve and trace actual model IDs
+  - Improves debugging and observability (e.g., traces show "claude-haiku-4-5" instead of "default")
+
+- **HTML Dashboard Judge Reasoning Display** - Comprehensive evaluation details now render in HTML
+  reports
+
+  - Judge evaluation reasoning, confidence scores, and evidence now visible in campaign detail pages
+  - 6 new tests in `tests/test_html_rendering.py` for template rendering validation
+  - Improves transparency and debuggability of evaluation results
+
+#### Changed
+
+- Updated README.md SECRET SAUCE section to document X-Ray trace ID conversion
+- Corrected metrics count in README from "13" to "11 metrics (4 Quality, 4 Safety, 3
+  Agent-specific)"
+- Fixed redteam library docstring to reflect accurate attack pattern count (20 patterns)
+
+#### Fixed
+
+- X-Ray API calls no longer fail with "invalid trace ID" warnings
+- Campaign orchestration properly stores OpenTelemetry IDs for logging while using X-Ray format for
+  API calls
+
 ### Documentation Consolidation (October 19, 2025)
 
 Major documentation consolidation effort to reduce redundancy and improve maintainability.
@@ -160,8 +214,7 @@ Multiple critical bugs discovered and fixed during comprehensive integration tes
 
 - **Bug 2**: Attack Category "obfuscation" Invalid
 
-  - Files: `demo/agenteval_live_demo.py`, `demo/comprehensive_demo_config.yaml`,
-    `SCALING_CAPABILITIES.md`
+  - Files: `demo/agenteval_live_demo.py`, `demo/demo_config.yaml`, `SCALING_CAPABILITIES.md`
   - Issue: Used "obfuscation" instead of correct enum value "encoding"
   - Impact: Red team campaigns now run with all 4 attack categories (injection, jailbreak,
     social_engineering, encoding)
@@ -224,7 +277,7 @@ Expanded testing capabilities to support all available test cases.
   - Safety metrics (5): toxicity, bias, harmful_content, privacy_leak, session_handling
   - Performance metrics (1): latency
 
-- **Configuration System**: Created `demo/comprehensive_demo_config.yaml` with granular control
+- **Configuration System**: Created `demo/demo_config.yaml` with granular control
 
   - Individual enable/disable for each persona, attack, and metric
   - Per-item configuration (turns, priority, severity)
