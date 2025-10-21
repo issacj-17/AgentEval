@@ -227,7 +227,6 @@ class HTMLRenderer:
             template_dir: Path to templates directory
             output_dir: Path to output directory for rendered files
         """
-        from agenteval.config import settings
         from agenteval.reporting.output_manager import get_output_manager
 
         self.template_dir = template_dir or self._get_default_template_dir()
@@ -403,7 +402,9 @@ class HTMLRenderer:
         logger.info(f"Campaign detail rendered successfully: {output_path}")
         return output_path
 
-    def render_campaign_detail_from_data(self, campaign_data: dict, campaign_dir: Path | None = None) -> Path:
+    def render_campaign_detail_from_data(
+        self, campaign_data: dict, campaign_dir: Path | None = None
+    ) -> Path:
         """
         Render campaign detail HTML directly from report data.
 
@@ -470,11 +471,13 @@ class HTMLRenderer:
                 else:
                     score = metric_data
 
-                turn_metrics.append({
-                    "name": name,
-                    "score": score,
-                    "score_class": self.calculate_score_class(score),
-                })
+                turn_metrics.append(
+                    {
+                        "name": name,
+                        "score": score,
+                        "score_class": self.calculate_score_class(score),
+                    }
+                )
 
             # Add metrics list to turn dict for template access
             turn["metrics"] = turn_metrics

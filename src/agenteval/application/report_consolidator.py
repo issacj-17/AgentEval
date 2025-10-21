@@ -247,7 +247,7 @@ class ReportConsolidator:
                 "For interactive visualizations and detailed exploration, "
                 "view the HTML dashboard:\n\n"
             )
-            md += "```\nopen demo/evidence/reports/dashboard.html\n```\n"
+            md += "```\nopen reports/dashboard.html\n```\n"
 
         # Add footer
         md += "\n---\n\n"
@@ -349,13 +349,15 @@ async def create_report_consolidator(
     Returns:
         Configured ReportConsolidator instance
     """
+    from agenteval.config import settings
+
     # Create Reporter Agent
     reporter_agent = ReporterAgent(model_id=model_id)
     await reporter_agent.initialize()
 
     # Create configuration
     config = ConsolidatorConfig(
-        output_dir=output_dir or Path("demo/evidence/reports"),
+        output_dir=output_dir or Path(settings.app.evidence_report_output_dir) / "reports",
         report_type=report_type,
         model_id=model_id,
     )

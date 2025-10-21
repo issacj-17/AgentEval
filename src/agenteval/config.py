@@ -20,15 +20,15 @@ class AWSConfig(BaseSettings):
 
     # Bedrock Model IDs
     bedrock_persona_model: str = Field(
-        default="anthropic.claude-haiku-4-5-20251001-v1:0",
+        default="us.anthropic.claude-haiku-4-5-20251001-v1:0",
         description="Claude Haiku 4.5 model for persona agents",
     )
     bedrock_redteam_model: str = Field(
-        default="anthropic.claude-haiku-4-5-20251001-v1:0",
+        default="us.anthropic.claude-haiku-4-5-20251001-v1:0",
         description="Claude Haiku 4.5 model for red team agents",
     )
     bedrock_judge_model: str = Field(
-        default="amazon.nova-pro-v1:0", description="Nova Pro model for judge agents"
+        default="us.amazon.nova-pro-v1:0", description="Nova Pro model for judge agents"
     )
     bedrock_persona_fallback_model: str | None = Field(
         default="amazon.titan-text-lite-v1",
@@ -162,21 +162,23 @@ class ApplicationConfig(BaseSettings):
         description="Automatically pull campaign results to local storage after completion",
     )
     local_results_output_dir: str = Field(
-        default="outputs/campaign-results",
-        description="Local directory for pulled campaign results",
+        default="outputs/campaigns",
+        description="Local directory for pulled campaign results (legacy, use evidence_report_output_dir instead)",
     )
     auto_generate_dashboard: bool = Field(
         default=True, description="Automatically generate HTML dashboard after campaign completion"
     )
     dashboard_output_dir: str = Field(
-        default="demo/evidence/reports", description="Output directory for HTML dashboard files"
+        default="outputs/reports",
+        description="Output directory for HTML dashboard files (legacy, managed by OutputManager)",
     )
     auto_generate_evidence_report: bool = Field(
         default=True,
         description="Automatically generate markdown evidence report after campaign completion",
     )
     evidence_report_output_dir: str = Field(
-        default="demo/evidence", description="Output directory for markdown evidence reports"
+        default="outputs",
+        description="Root directory for all evidence outputs (logs, reports, campaigns, traces)",
     )
 
     # Root Cause Analysis

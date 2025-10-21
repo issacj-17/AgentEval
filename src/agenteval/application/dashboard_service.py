@@ -591,7 +591,9 @@ class DashboardService:
                     system_response=turn.get("system_response", ""),
                     metrics=turn_metrics,
                     trace_id=turn.get("trace_id"),
-                    evaluation=turn_evals[0] if turn_evals else None,  # Include full evaluation data
+                    evaluation=turn_evals[0]
+                    if turn_evals
+                    else None,  # Include full evaluation data
                 )
             )
 

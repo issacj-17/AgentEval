@@ -44,11 +44,19 @@ async def pull_campaign_data(
     await s3_client.connect()
     downloaded_files: list[Path] = []
 
-    if campaign_id:
-        campaign = await dynamodb.get_campaign(campaign_id)
-        campaigns = [campaign] if campaign else []
-    else:
-        campaigns = await dynamodb.list_campaigns(limit=limit, offset=0)
+    try:
+        if campaign_id:
+            campaign = await dynamodb.get_campaign(campaign_id)
+            campaigns = [campaign] if campaign else []
+        else:
+            campaigns = await dynamodb.list_campaigns(limit=limit, offset=0)
+    except Exception as e:
+        # Handle case where AWS resources don't exist yet
+        if "ResourceNotFoundException" in str(e) or "does not exist" in str(e):
+            # Resources not provisioned yet - return empty list gracefully
+            return downloaded_files
+        # Re-raise other exceptions
+        raise
 
     if not campaigns:
         return downloaded_files
@@ -167,6 +175,8 @@ def pull_live_reports(
 def parse_args(argv: Sequence[str]):
     import argparse
 
+    from agenteval.config import settings
+
     parser = argparse.ArgumentParser(description="Download live demo artefacts for offline review.")
     parser.add_argument(
         "--campaign-id",
@@ -174,8 +184,7 @@ def parse_args(argv: Sequence[str]):
     )
     parser.add_argument(
         "--output",
-        default="demo/evidence/pulled-reports",
-        help="Destination directory for downloaded artefacts (default: %(default)s).",
+        help="Destination directory for downloaded artefacts. If not specified, uses OutputManager to determine path.",
     )
     parser.add_argument(
         "--limit",
@@ -187,10 +196,23 @@ def parse_args(argv: Sequence[str]):
 
 
 def cli(argv: Sequence[str] | None = None) -> int:
+    from agenteval.reporting.output_manager import get_output_manager
+
     args = parse_args(argv or [])
+
+    # Determine output directory
+    if args.output:
+        output_dir = Path(args.output)
+    else:
+        # Use OutputManager to get campaigns directory
+        output_manager = get_output_manager()
+        output_manager.ensure_directories()
+        output_dir = output_manager.campaigns_dir
+        print(f"Using OutputManager campaigns directory: {output_dir}")
+
     try:
         downloaded = pull_live_reports(
-            Path(args.output),
+            output_dir,
             campaign_id=args.campaign_id,
             limit=args.limit,
         )
@@ -202,7 +224,7 @@ def cli(argv: Sequence[str] | None = None) -> int:
         return 1
 
     if downloaded:
-        print(f"✓ Pulled {len(downloaded)} S3 artefact(s) into {args.output}")
+        print(f"✓ Pulled {len(downloaded)} S3 artefact(s) into {output_dir}")
     else:
         print("⚠ No campaigns or artefacts found for the specified criteria.")
 

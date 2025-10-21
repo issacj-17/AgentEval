@@ -159,14 +159,26 @@ class ResultsService:
             dynamodb: DynamoDB client for campaign data
             s3: S3 client for reports
             xray: X-Ray client for traces
-            output_dir: Base directory for saving results (default: demo/evidence)
+            output_dir: Base directory for saving results (configurable via settings)
+                       Should be the OutputManager's run directory for proper structure
         """
+        from agenteval.config import settings
+        from agenteval.reporting.output_manager import get_output_manager
+
         self.dynamodb = dynamodb
         self.s3 = s3
         self.xray = xray
-        self.output_dir = output_dir or Path("demo/evidence")
 
-        # Ensure output directories exist
+        # Use OutputManager's run directory if no output_dir specified
+        # This ensures proper timestamped directory structure
+        if output_dir is None:
+            output_manager = get_output_manager()
+            self.output_dir = output_manager.run_dir
+        else:
+            self.output_dir = Path(output_dir)
+
+        # Create subdirectories within the run directory
+        # These will be at: outputs/{timestamp}-run/campaign-data/, etc.
         self.campaign_data_dir = self.output_dir / "campaign-data"
         self.pulled_reports_dir = self.output_dir / "pulled-reports"
         self.trace_reports_dir = self.output_dir / "trace-reports"
@@ -385,7 +397,12 @@ class ResultsService:
             objects = await self.s3.list_objects(results_bucket, prefix)
 
             # Download reports for each campaign
-            for obj_key in objects:
+            for obj in objects:
+                # Extract key from object metadata
+                obj_key = obj.get("key") if isinstance(obj, dict) else obj
+                if not obj_key:
+                    continue
+
                 # Extract campaign ID from path: campaigns/{campaign_id}/...
                 parts = obj_key.split("/")
                 if len(parts) >= 3:
@@ -429,7 +446,12 @@ class ResultsService:
             objects = await self.s3.list_objects(reports_bucket, prefix)
 
             # Download reports
-            for obj_key in objects:
+            for obj in objects:
+                # Extract key from object metadata
+                obj_key = obj.get("key") if isinstance(obj, dict) else obj
+                if not obj_key:
+                    continue
+
                 # Extract campaign ID from path: reports/{campaign_id}/...
                 parts = obj_key.split("/")
                 if len(parts) >= 3:

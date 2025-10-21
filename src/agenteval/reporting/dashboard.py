@@ -1,14 +1,14 @@
 """
 Evidence dashboard generator.
 
-Aggregates artefacts collected under ``demo/evidence/pulled-reports``
+Aggregates artefacts collected under the configured evidence output directory
 into a human-friendly Markdown report summarising every campaign in
 the latest run (or a specific run supplied via CLI arguments).
 
 Usage::
 
     python -m agenteval.reporting.dashboard --latest
-    python -m agenteval.reporting.dashboard --run-dir demo/evidence/pulled-reports/20251019T032317
+    python -m agenteval.reporting.dashboard --run-dir <evidence-dir>/<run-timestamp>
 """
 
 from __future__ import annotations
@@ -27,10 +27,6 @@ __all__ = [
     "generate_dashboard",
     "generate_live_demo_summary",
 ]
-
-
-PULLED_REPORTS_ROOT = Path("demo/evidence/pulled-reports")
-DEFAULT_OUTPUT_PATH = Path("demo/evidence/dashboard.md")
 
 
 @dataclass
@@ -88,15 +84,15 @@ def _latest_run_dir(root: Path) -> Path | None:
     """Locate the most recent evidence pull directory."""
     if not root.exists():
         return None
-    candidates = [p for p in root.iterdir() if p.is_dir()]
+    candidates = [p for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")]
     if not candidates:
         return None
     return max(candidates, key=lambda p: p.name)
 
 
-def collect_campaign_insights(run_dir: Path) -> list[CampaignInsight]:
+def collect_campaign_insights(campaigns_dir: Path) -> list[CampaignInsight]:
     campaigns: list[CampaignInsight] = []
-    for campaign_dir in sorted(run_dir.iterdir()):
+    for campaign_dir in sorted(campaigns_dir.iterdir()):
         if not campaign_dir.is_dir():
             continue
         campaign_json = _load_json(campaign_dir / "dynamodb" / "campaign.json")
@@ -268,23 +264,23 @@ def _format_percent(value: float | None) -> str:
     return f"{value * 100:.1f}%"
 
 
-def _render_markdown(run_dir: Path, campaigns: Sequence[CampaignInsight]) -> str:
+def _render_markdown(campaigns_dir: Path, campaigns: Sequence[CampaignInsight]) -> str:
     generated_at = datetime.utcnow().isoformat(timespec="seconds")
-    live_summary = Path("demo/evidence/live-demo-latest.md")
-    run_pull_log = run_dir / "pull-live-reports.log"
+    run_pull_log = campaigns_dir.parent / "logs" / "pull-live-reports.log"
+
+    run_dir = campaigns_dir.parent
+    run_name = run_dir.name
 
     header = [
         "# AgentEval Evidence Dashboard",
         "",
         f"- Generated: `{generated_at}` UTC",
-        f"- Source run: `{run_dir.name}`",
+        f"- Source run: `{run_name}`",
         f"- Campaigns analysed: {len(campaigns)}",
         "",
     ]
 
     global_links: list[str] = []
-    if live_summary.exists():
-        global_links.append(f"[Live demo snapshot]({live_summary.as_posix()})")
     if run_pull_log.exists():
         global_links.append(f"[Run log]({run_pull_log.as_posix()})")
     if global_links:
@@ -376,30 +372,53 @@ def _render_campaign_detail(c: CampaignInsight) -> list[str]:
 
 
 def generate_dashboard(
-    run_dir: Path,
+    campaigns_dir: Path,
     output_path: Path,
     campaigns: Sequence[CampaignInsight] | None = None,
 ) -> Path:
-    """Generate the dashboard markdown for a specific run directory."""
-    insights = list(campaigns) if campaigns is not None else collect_campaign_insights(run_dir)
-    markdown = _render_markdown(run_dir, insights)
+    """
+    Generate the dashboard markdown for a specific campaigns directory.
+
+    Args:
+        campaigns_dir: Path to campaigns directory containing campaign subdirectories
+        output_path: Path where dashboard markdown should be written
+        campaigns: Pre-collected campaign insights (optional, will collect if None)
+
+    Returns:
+        Path to generated dashboard file
+    """
+    insights = list(campaigns) if campaigns is not None else collect_campaign_insights(campaigns_dir)
+    markdown = _render_markdown(campaigns_dir, insights)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(markdown)
     return output_path
 
 
 def generate_live_demo_summary(
-    run_dir: Path,
+    campaigns_dir: Path,
     output_path: Path,
     campaigns: Sequence[CampaignInsight] | None = None,
 ) -> Path:
-    """Generate a compact summary table similar to the legacy live demo report."""
-    insights = list(campaigns) if campaigns is not None else collect_campaign_insights(run_dir)
+    """
+    Generate a compact summary table similar to the legacy live demo report.
+
+    Args:
+        campaigns_dir: Path to campaigns directory containing campaign subdirectories
+        output_path: Path where summary markdown should be written
+        campaigns: Pre-collected campaign insights (optional, will collect if None)
+
+    Returns:
+        Path to generated summary file
+    """
+    insights = list(campaigns) if campaigns is not None else collect_campaign_insights(campaigns_dir)
+
+    run_dir = campaigns_dir.parent
+    run_name = run_dir.name
 
     lines = [
         "# AgentEval Live Demo Summary",
         "",
-        f"*Latest pull:* `{run_dir.name}`",
+        f"*Latest pull:* `{run_name}`",
         "",
         "| Campaign ID | Type | Focus | Status | Turns (completed/total) | Success Rate |",
         "| --- | --- | --- | --- | --- | --- |",
@@ -427,34 +446,56 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     group.add_argument(
         "--latest",
         action="store_true",
-        help="Use the most recent directory under demo/evidence/pulled-reports.",
+        help="Use the most recent run under evidence root.",
     )
     group.add_argument(
         "--run-dir",
         type=Path,
-        help="Explicit pulled-reports directory to process.",
+        help="Explicit run directory to process (should contain campaigns/ subdirectory).",
     )
     parser.add_argument(
         "--output",
         type=Path,
-        default=DEFAULT_OUTPUT_PATH,
-        help=f"Destination markdown file (default: {DEFAULT_OUTPUT_PATH}).",
+        help="Destination markdown file (default: <run-dir>/dashboard.md).",
     )
     return parser.parse_args(argv)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    from agenteval.config import settings
+    from agenteval.reporting.output_manager import OutputManager
+
     args = parse_args(argv)
+
+    # Determine which run directory to use
     if args.run_dir:
-        run_dir = args.run_dir
+        run_dir = Path(args.run_dir).resolve()
     else:
-        run_dir = _latest_run_dir(PULLED_REPORTS_ROOT)
+        # Use latest from evidence root
+        evidence_root = Path(settings.app.evidence_report_output_dir).resolve()
+        latest_link = evidence_root / "latest"
+
+        if latest_link.exists():
+            run_dir = latest_link.resolve()
+        else:
+            # Fall back to finding latest manually
+            run_dir = _latest_run_dir(evidence_root)
 
     if not run_dir or not run_dir.exists():
-        raise SystemExit("No evidence runs found. Please execute a live demo first.")
+        raise SystemExit(
+            "No evidence runs found. Please execute a live demo first. "
+            f"Expected directory: {evidence_root if not args.run_dir else args.run_dir}"
+        )
 
-    output_path = args.output
-    generated = generate_dashboard(run_dir, output_path)
+    # Get campaigns directory
+    campaigns_dir = run_dir / "campaigns"
+    if not campaigns_dir.exists():
+        raise SystemExit(f"No campaigns directory found in {run_dir}")
+
+    # Determine output path
+    output_path = args.output or (run_dir / "dashboard.md")
+
+    generated = generate_dashboard(campaigns_dir, output_path)
     print(f"Dashboard generated: {generated}")
     return 0
 
