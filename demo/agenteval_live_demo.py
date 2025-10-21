@@ -30,6 +30,7 @@ from typing import Any
 from uuid import uuid4
 
 import httpx
+import yaml
 
 BASE_DIR = Path(__file__).parent.parent
 LIVE_DEMO_ENV_PATH = BASE_DIR / ".env.live-demo"
@@ -44,6 +45,7 @@ from agenteval.aws.s3 import ReportFormat
 from agenteval.config import settings
 from agenteval.container import Container, reset_container
 from agenteval.orchestration.campaign import CampaignType
+from agenteval.reporting.output_manager import get_output_manager
 from agenteval.reporting.pull import pull_campaign_data
 
 # Configure logging
@@ -73,16 +75,44 @@ class LiveDemoRunner:
         self.primary_target_url: str = settings.demo.target_url
         self.fallback_target_url: str | None = settings.demo.fallback_target_url
         self.active_target_url: str = self.primary_target_url
-        self.persona_max_turns = settings.demo.persona_max_turns
-        self.redteam_max_turns = settings.demo.redteam_max_turns
         self._turn_sample_limit = 2
-        self.run_timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%S")
-        self.evidence_root = BASE_DIR / "demo" / "evidence"
-        self.trace_reports_dir = self.evidence_root / "trace-reports"
+
+        # Load demo configuration from YAML
+        self.config = self._load_demo_config()
+
+        # Use config values, falling back to settings if not in config
+        self.persona_max_turns = self.config.get("demo_settings", {}).get(
+            "persona_turns_per_campaign", settings.demo.persona_max_turns
+        )
+        self.redteam_max_turns = self.config.get("demo_settings", {}).get(
+            "redteam_turns_per_campaign", settings.demo.redteam_max_turns
+        )
+
+        # Use OutputManager for consistent directory structure
+        self.output_manager = get_output_manager()
+        self.output_manager.ensure_directories()
+        self.run_timestamp = self.output_manager.run_timestamp
+        self.evidence_root = self.output_manager.evidence_root
+        self.trace_reports_dir = self.output_manager.traces_dir
         self.campaign_trace_reports: dict[str, Path] = {}
 
-        self.evidence_root.mkdir(parents=True, exist_ok=True)
-        self.trace_reports_dir.mkdir(parents=True, exist_ok=True)
+    def _load_demo_config(self) -> dict:
+        """Load demo configuration from demo_config.yaml"""
+        config_path = BASE_DIR / "demo" / "demo_config.yaml"
+        if config_path.exists():
+            with open(config_path) as f:
+                return yaml.safe_load(f)
+        return {}
+
+    def _get_enabled_personas(self) -> list[str]:
+        """Get list of enabled persona IDs from config"""
+        personas = self.config.get("personas", [])
+        return [p["id"] for p in personas if p.get("enabled", False)]
+
+    def _get_enabled_attack_categories(self) -> list[str]:
+        """Get list of enabled attack categories from config"""
+        categories = self.config.get("attack_categories", {})
+        return [cat for cat, data in categories.items() if data.get("enabled", False)]
 
     @staticmethod
     def _summarize_response(response: Any) -> str:
@@ -231,8 +261,17 @@ class LiveDemoRunner:
             # Test DynamoDB
             self.print_info("Testing DynamoDB connection...")
             await self.container.dynamodb().connect()
-            tables = await self.container.dynamodb().list_campaigns(limit=1)
-            self.print_success(f"DynamoDB connected (region: {settings.aws.region})")
+            try:
+                tables = await self.container.dynamodb().list_campaigns(limit=1)
+                self.print_success(f"DynamoDB connected (region: {settings.aws.region})")
+            except Exception as e:
+                if "ResourceNotFoundException" in str(e) or "does not exist" in str(e):
+                    self.print_error(f"AWS connectivity check failed: {e}")
+                    self.print_info("")
+                    self.print_info("Did you run the setup script?")
+                    self.print_info("  → scripts/setup-live-demo.sh")
+                    return False
+                raise
 
             # Test S3
             self.print_info("Testing S3 connection...")
@@ -326,8 +365,14 @@ class LiveDemoRunner:
             ("security_conscious_user", "How do you handle my data and privacy?"),
         ]
 
-        # Select personas based on mode (use first 1 in quick mode, all 10 in full mode)
-        personas_to_run = all_personas[:1] if self.quick_mode else all_personas
+        # Filter personas based on config file
+        enabled_personas = self._get_enabled_personas()
+        if enabled_personas:
+            # Use config-enabled personas
+            personas_to_run = [p for p in all_personas if p[0] in enabled_personas]
+        else:
+            # Fallback to code-based selection if no config
+            personas_to_run = all_personas[:1] if self.quick_mode else all_personas[:3]
 
         self.print_info(f"Running {len(personas_to_run)} persona campaign(s)")
         self.print_info(f"Available personas: {', '.join([p[0] for p in all_personas])}")
@@ -414,7 +459,7 @@ class LiveDemoRunner:
         # encoding: base64_encoding, unicode_obfuscation, leetspeak_obfuscation, rot13_encoding, language_mixing
         all_attack_categories = ["injection", "jailbreak", "social_engineering", "encoding"]
 
-        # Use fewer categories in quick mode, all in full mode
+        # Use 2 categories in quick mode, ALL 4 categories in full mode for comprehensive red team testing
         attack_categories = ["injection", "jailbreak"] if self.quick_mode else all_attack_categories
 
         campaign_config = {
@@ -717,7 +762,7 @@ class LiveDemoRunner:
             return
 
         try:
-            output_dir = self.evidence_root / "pulled-results"
+            output_dir = self.output_manager.campaigns_dir
             output_dir.mkdir(parents=True, exist_ok=True)
 
             self.print_info(f"Pulling results to: {output_dir}")
@@ -754,14 +799,19 @@ class LiveDemoRunner:
             print("")
             self.print_success(f"Pull complete! Downloaded {total_files} total files")
             self.print_info(f"All results saved to: {output_dir}")
+            self.print_info(f"Run directory: {self.output_manager.run_dir}")
             print("")
             self.print_info("📁 Directory structure:")
-            self.print_info(f"  {output_dir}/")
-            self.print_info("    └── <campaign_id>/")
-            self.print_info("        ├── dynamodb/         # Campaign, turns, evaluations")
-            self.print_info("        └── s3/              # Reports and results")
-            self.print_info("            ├── results/      # Campaign results JSON")
-            self.print_info("            └── reports/      # Generated reports")
+            self.print_info(f"  {self.output_manager.run_dir}/")
+            self.print_info("    ├── campaigns/           # All campaign data")
+            self.print_info("    │   └── <campaign_id>/")
+            self.print_info("    │       ├── dynamodb/    # Campaign, turns, evaluations")
+            self.print_info("    │       └── s3/          # Reports and results")
+            self.print_info("    ├── reports/             # HTML/markdown reports")
+            self.print_info("    ├── logs/                # Execution logs")
+            self.print_info("    ├── traces/              # X-Ray traces")
+            self.print_info("    ├── dashboard.md         # Evidence dashboard")
+            self.print_info("    └── summary.md           # Summary report")
 
         except Exception as e:
             self.print_error(f"Results pull failed: {e}")
@@ -796,22 +846,27 @@ class LiveDemoRunner:
 
         print("🎯 NEXT STEPS:")
         print("  1. Review pulled results locally:")
-        print(f"     ls -la {self.evidence_root / 'pulled-results'}/")
-        print(
-            f"     cat {self.evidence_root / 'pulled-results'}/<campaign_id>/dynamodb/campaign.json"
-        )
+        print(f"     ls -la {self.output_manager.run_dir}/")
+        print(f"     cat {self.output_manager.campaigns_dir}/<campaign_id>/dynamodb/campaign.json")
         print("")
-        print("  2. View campaign data in DynamoDB:")
+        print("  2. View dashboards:")
+        print(f"     cat {self.output_manager.dashboard_path}")
+        print(f"     cat {self.output_manager.summary_path}")
+        print("")
+        print("  3. View campaign data in DynamoDB:")
         print(
             f"     aws dynamodb scan --table-name agenteval-campaigns --region {settings.aws.region}"
         )
         print("")
-        print("  3. List results in S3:")
+        print("  4. List results in S3:")
         print(f"     aws s3 ls s3://{settings.aws.s3_results_bucket}/campaigns/ --recursive")
         print("")
-        print("  4. Check EventBridge events (if event archiving is enabled)")
+        print("  5. Check EventBridge events (if event archiving is enabled)")
         print("")
-        print("  5. Clean up resources:")
+        print("  6. Quick access to latest run:")
+        print(f"     cd {self.output_manager.latest_dir}")
+        print("")
+        print("  7. Clean up resources:")
         print("     scripts/teardown-live-demo.sh")
         print("")
 

@@ -153,18 +153,15 @@ fi
 echo ""
 sleep 2
 
-# Step 3: Pull Results
+# Step 3: Pull Results (REMOVED - demo script handles this internally)
+# The agenteval_chatbot_demo.py script already pulls results to the correct location
+# via demo/agenteval_live_demo.py's pull_results() method, so this step is redundant
 if [ "$PULL_RESULTS" = "true" ]; then
     echo -e "${BLUE}╔═══════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${BLUE}║  STEP 3: Pulling Results from AWS                       ║${NC}"
+    echo -e "${BLUE}║  STEP 3: Results Already Pulled by Demo Script          ║${NC}"
     echo -e "${BLUE}╚═══════════════════════════════════════════════════════════╝${NC}"
     echo ""
-
-    if bash "${SCRIPT_DIR}/pull-demo-results.sh"; then
-        echo -e "${GREEN}✓ Results pulled successfully${NC}"
-    else
-        echo -e "${YELLOW}⚠ Results pulling encountered issues (non-fatal)${NC}"
-    fi
+    echo -e "${GREEN}✓ Results automatically pulled to outputs/{timestamp}-run/ by demo script${NC}"
     echo ""
     sleep 2
 else
@@ -172,32 +169,40 @@ else
     echo ""
 fi
 
-# Step 4: Generate Quick Analysis
-if [ "$PULL_RESULTS" = "true" ] && [ "$DEMO_SUCCESS" = "true" ]; then
+# Step 4: Display Results Location
+if [ "$DEMO_SUCCESS" = "true" ]; then
     echo -e "${BLUE}╔═══════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${BLUE}║  STEP 4: Generating Quick Analysis                      ║${NC}"
+    echo -e "${BLUE}║  STEP 4: Results Summary                                 ║${NC}"
     echo -e "${BLUE}╚═══════════════════════════════════════════════════════════╝${NC}"
     echo ""
 
-    CAMPAIGN_FILE="${REPO_ROOT}/demo/evidence/campaign-data/campaigns.json"
-    TURNS_FILE="${REPO_ROOT}/demo/evidence/campaign-data/turns.json"
+    # Find latest output directory
+    LATEST_OUTPUT="${REPO_ROOT}/outputs/latest"
 
-    if [ -f "$CAMPAIGN_FILE" ]; then
-        echo -e "${BLUE}━━━ Campaign Summary ━━━${NC}"
-        jq -r '.Items[] | "\nCampaign: \(.campaign_id.S)\n  Type: \(.campaign_type.S)\n  Status: \(.status.S)\n  Completed Turns: \(.stats.M.completed_turns.N)/\(.stats.M.total_turns.N)\n  Average Score: \(.stats.M.avg_score.N)\n  Failed Turns: \(.stats.M.failed_turns.N)"' "$CAMPAIGN_FILE"
+    if [ -L "$LATEST_OUTPUT" ]; then
+        echo -e "${GREEN}✓ Results generated successfully${NC}"
+        echo ""
+        echo -e "${BLUE}━━━ Output Location ━━━${NC}"
+        echo "  All results: ${LATEST_OUTPUT}/"
+        echo "  HTML Dashboard: ${LATEST_OUTPUT}/reports/dashboard.html"
+        echo "  Campaign Details: ${LATEST_OUTPUT}/reports/campaign_*.html"
+        echo "  Markdown Reports: ${LATEST_OUTPUT}/dashboard.md"
+        echo "  Summary: ${LATEST_OUTPUT}/summary.md"
+        echo "  Logs: ${LATEST_OUTPUT}/logs/"
+        echo ""
+        echo -e "${BLUE}━━━ Quick Stats ━━━${NC}"
+
+        # Count campaigns
+        CAMPAIGN_COUNT=$(find "${LATEST_OUTPUT}/campaigns" -maxdepth 1 -type d | tail -n +2 | wc -l | tr -d ' ')
+        echo "  Campaigns evaluated: ${CAMPAIGN_COUNT}"
+
+        # Count HTML reports
+        HTML_COUNT=$(find "${LATEST_OUTPUT}/reports" -name "campaign_*.html" 2>/dev/null | wc -l | tr -d ' ')
+        echo "  Detail pages generated: ${HTML_COUNT}"
+    else
+        echo -e "${YELLOW}⚠ Latest output symlink not found${NC}"
+        echo "  Results may be in: ${REPO_ROOT}/outputs/"
     fi
-
-    if [ -f "$TURNS_FILE" ]; then
-        echo -e "\n${BLUE}━━━ Turn Examples ━━━${NC}"
-        jq -r '.Items[0:2][] | "\nTurn \(.turn_number.N):\n  User: \(.user_message.S)\n  Bot: \(.system_response.S)"' "$TURNS_FILE"
-    fi
-
-    echo ""
-    echo -e "${BLUE}━━━ Evidence Location ━━━${NC}"
-    echo "  All results: ${REPO_ROOT}/demo/evidence/"
-    echo "  Reports: ${REPO_ROOT}/demo/evidence/pulled-reports/"
-    echo "  Raw data: ${REPO_ROOT}/demo/evidence/campaign-data/"
-    echo "  Summary: ${REPO_ROOT}/demo/evidence/SUMMARY.md"
     echo ""
 fi
 
@@ -229,15 +234,20 @@ echo -e "${GREEN}║                                                           �
 echo -e "${GREEN}╚═══════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
-if [ "$PULL_RESULTS" = "true" ]; then
-    echo "📊 Review your results:"
-    echo "   cat demo/evidence/SUMMARY.md"
-    echo "   jq . demo/evidence/campaign-data/campaigns.json"
-    echo ""
-fi
+echo "📊 Review your results:"
+echo "   # Open interactive HTML dashboard"
+echo "   open outputs/latest/reports/dashboard.html"
+echo ""
+echo "   # View markdown reports"
+echo "   cat outputs/latest/dashboard.md"
+echo "   cat outputs/latest/summary.md"
+echo ""
+echo "   # Explore campaign details"
+echo "   ls outputs/latest/reports/campaign_*.html"
+echo ""
 
 echo "🎯 Next steps:"
-echo "   • Review reports in demo/evidence/"
+echo "   • Click 'View Details' on any campaign to see chatbot responses"
 echo "   • Analyze metrics to improve your chatbot"
 echo "   • Run more campaigns with different personas"
 echo "   • Deploy to production!"

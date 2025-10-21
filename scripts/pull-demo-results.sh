@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # Pull Demo Results Script
 # Downloads all reports, logs, and results from AWS to local directory
+#
+# NOTE: This script is DEPRECATED for use with run-full-demo.sh
+# The Python demo scripts (agenteval_chatbot_demo.py, agenteval_live_demo.py)
+# now handle result pulling automatically to outputs/{timestamp}-run/ structure.
+# This script uses legacy hardcoded paths to demo/evidence/ and should only be
+# used for manual data extraction or debugging purposes.
 
 set -euo pipefail
 

@@ -44,6 +44,8 @@ echo ""
 # List of directories/files to clean
 ITEMS_TO_CLEAN=(
     "outputs"
+    "demo/evidence/*-run"
+    "demo/evidence/latest"
     "demo/evidence/reports"
     "demo/evidence/dashboard.md"
     "demo/evidence/live-demo-latest.md"
@@ -67,11 +69,21 @@ echo ""
 
 # Confirmation
 if [[ "${FORCE}" != "true" ]]; then
-    read -p "Continue? (y/N) " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo -e "${YELLOW}Cancelled${NC}"
-        exit 0
+    # Check if stdin is a terminal (interactive) or a pipe
+    if [ -t 0 ]; then
+        read -p "Continue? (y/N) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo -e "${YELLOW}Cancelled${NC}"
+            exit 0
+        fi
+    else
+        # Non-interactive mode (piped input)
+        read -r REPLY
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo -e "${YELLOW}Cancelled${NC}"
+            exit 0
+        fi
     fi
 fi
 
@@ -88,6 +100,17 @@ for dir in "outputs" "demo/evidence/reports" "demo/evidence/pulled-results" "htm
         rm -rf "${dir}"
     fi
 done
+
+# Remove timestamped run directories and latest symlink
+if ls demo/evidence/*-run 1> /dev/null 2>&1; then
+    echo -e "${BLUE}ℹ${NC} Removing timestamped run directories"
+    rm -rf demo/evidence/*-run
+fi
+
+if [[ -L "demo/evidence/latest" ]]; then
+    echo -e "${BLUE}ℹ${NC} Removing latest symlink"
+    rm -f demo/evidence/latest
+fi
 
 # Remove specific files
 for file in "demo/evidence/dashboard.md" "demo/evidence/live-demo-latest.md" ".coverage"; do
