@@ -36,7 +36,9 @@ from agenteval.factories.judge_factory import JudgeAgentFactory
 from agenteval.factories.persona_factory import PersonaAgentFactory
 from agenteval.factories.redteam_factory import RedTeamAgentFactory
 from agenteval.observability.tracer import (
+    convert_otel_trace_id_to_xray,
     get_current_trace_id,
+    get_current_xray_trace_id,
     inject_agentcore_headers,
     set_baggage,
     trace_operation,
@@ -438,8 +440,11 @@ class CampaignOrchestrator:
                     from agenteval.reporting.pull import (  # Lazy import to avoid circular dependency
                         pull_campaign_data,
                     )
+                    from agenteval.reporting.output_manager import get_output_manager
 
-                    output_dir = Path(settings.app.local_results_output_dir).resolve()
+                    # Use OutputManager's campaigns directory for proper timestamped structure
+                    output_manager = get_output_manager()
+                    output_dir = output_manager.campaigns_dir
                     output_dir.mkdir(parents=True, exist_ok=True)
 
                     logger.info(
@@ -486,8 +491,11 @@ class CampaignOrchestrator:
                         DashboardConfig,
                         create_dashboard_service,
                     )
+                    from agenteval.reporting.output_manager import get_output_manager
 
-                    dashboard_dir = Path(settings.app.dashboard_output_dir).resolve()
+                    # Use OutputManager's run directory for proper timestamped structure
+                    output_manager = get_output_manager()
+                    dashboard_dir = output_manager.run_dir
                     dashboard_dir.mkdir(parents=True, exist_ok=True)
 
                     logger.info(
@@ -553,8 +561,9 @@ class CampaignOrchestrator:
                     evidence_dir = Path(settings.app.evidence_report_output_dir).resolve()
                     evidence_dir.mkdir(parents=True, exist_ok=True)
 
-                    # Use the pulled results directory as the run directory
-                    run_dir = Path(settings.app.local_results_output_dir).resolve()
+                    # Use the pulled results directory as the campaigns directory
+                    # Note: local_results_output_dir is already "outputs/campaigns"
+                    campaigns_dir = Path(settings.app.local_results_output_dir).resolve()
 
                     logger.info(
                         f"Auto-generating markdown evidence report for campaign {campaign_id}",
@@ -562,18 +571,18 @@ class CampaignOrchestrator:
                     )
 
                     # Collect insights from pulled data
-                    insights = collect_campaign_insights(run_dir)
+                    insights = collect_campaign_insights(campaigns_dir)
 
                     # Generate full markdown dashboard
                     dashboard_path = evidence_dir / "dashboard.md"
                     generate_markdown_dashboard(
-                        run_dir=run_dir, output_path=dashboard_path, campaigns=insights
+                        campaigns_dir=campaigns_dir, output_path=dashboard_path, campaigns=insights
                     )
 
                     # Generate compact live demo summary
                     summary_path = evidence_dir / "live-demo-latest.md"
                     generate_live_demo_summary(
-                        run_dir=run_dir, output_path=summary_path, campaigns=insights
+                        campaigns_dir=campaigns_dir, output_path=summary_path, campaigns=insights
                     )
 
                     logger.info(
@@ -694,9 +703,12 @@ class CampaignOrchestrator:
 
             span.set_attribute("system_response_length", len(system_response))
 
-            # Capture trace ID for this interaction
-            trace_id = get_current_trace_id()
-            span.set_attribute("trace_id", trace_id or "none")
+            # Capture trace ID for this interaction (OpenTelemetry format for logging)
+            otel_trace_id = get_current_trace_id()
+            span.set_attribute("trace_id", otel_trace_id or "none")
+
+            # Convert to X-Ray format for X-Ray API calls
+            xray_trace_id = get_current_xray_trace_id() if otel_trace_id else None
 
             # Step 3: Evaluate response with JudgeAgent
             evaluation_result = await judge_agent.evaluate_response(
@@ -705,7 +717,7 @@ class CampaignOrchestrator:
                 context={
                     "campaign_id": campaign_id,
                     "turn_number": turn_number,
-                    "trace_id": trace_id,
+                    "trace_id": otel_trace_id,
                 },
             )
 
@@ -741,10 +753,10 @@ class CampaignOrchestrator:
             # Step 4: Retrieve and analyze trace (SECRET SAUCE)
             correlation_result = None
 
-            if trace_id:
+            if xray_trace_id:
                 try:
-                    # Retrieve trace from X-Ray
-                    trace_data = await self.xray.get_trace(trace_id)
+                    # Retrieve trace from X-Ray (using X-Ray formatted trace ID)
+                    trace_data = await self.xray.get_trace(xray_trace_id)
 
                     if trace_data:
                         # Analyze trace
@@ -781,7 +793,7 @@ class CampaignOrchestrator:
                 "turn_id": turn_id,
                 "campaign_id": campaign_id,
                 "turn_number": turn_number,
-                "trace_id": trace_id,
+                "trace_id": otel_trace_id,  # Store OpenTelemetry trace ID for logging
                 "agent_type": agent_descriptor,
                 "user_message": user_message,
                 "system_response": system_response,
@@ -813,7 +825,7 @@ class CampaignOrchestrator:
                 campaign_id=campaign_id,
                 turn_id=turn_id,
                 agent_type=agent_descriptor,
-                trace_id=trace_id or "none",
+                trace_id=otel_trace_id or "none",
                 overall_score=evaluation_result["aggregate_scores"]["overall"],
                 trace_analyzed=correlation_result is not None,
             )

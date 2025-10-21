@@ -76,10 +76,14 @@ async def generate_report_command(args: argparse.Namespace) -> int:
         create_report_consolidator,
     )
     from agenteval.application.results_service import create_results_service
+    from agenteval.config import settings
 
     logger.info("📊 Generating evaluation reports...")
 
     try:
+        # Determine output directory
+        output_dir = Path(args.output_dir) if args.output_dir else Path(settings.app.evidence_report_output_dir)
+
         # Pull results from AWS
         results_service = await create_results_service()
         results = await results_service.pull_all_results(
@@ -98,7 +102,7 @@ async def generate_report_command(args: argparse.Namespace) -> int:
             dashboard_service = await create_dashboard_service(
                 config=DashboardConfig(
                     region=args.region,
-                    output_dir=Path(args.output_dir),
+                    output_dir=output_dir,
                     generate_html=True,
                     generate_markdown=True,
                 )
@@ -113,7 +117,7 @@ async def generate_report_command(args: argparse.Namespace) -> int:
         # Generate markdown report
         if args.format in ["markdown", "all"]:
             logger.info("Generating markdown report...")
-            consolidator = await create_report_consolidator(output_dir=Path(args.output_dir))
+            consolidator = await create_report_consolidator(output_dir=output_dir)
 
             report_path = await consolidator.consolidate_reports(results)
             logger.info(f"✅ Markdown report: {report_path}")
@@ -137,12 +141,16 @@ async def export_traces_command(args: argparse.Namespace) -> int:
         Exit code
     """
     from agenteval.observability.trace_exporter import create_trace_exporter
+    from agenteval.config import settings
 
     logger.info("📦 Exporting traces...")
 
     try:
+        # Determine output directory
+        output_dir = Path(args.output_dir) if args.output_dir else Path(settings.app.evidence_report_output_dir)
+
         exporter = await create_trace_exporter(
-            output_dir=Path(args.output_dir) / "traces",
+            output_dir=output_dir / "traces",
             export_format=args.export_format,
             max_traces=args.max_traces,
         )
@@ -215,8 +223,8 @@ Examples:
     )
     parser.add_argument(
         "--output-dir",
-        default="demo/evidence",
-        help="Output directory (default: demo/evidence)",
+        default=None,
+        help="Output directory (default: from settings.app.evidence_report_output_dir)",
     )
     parser.add_argument(
         "--verbose",
