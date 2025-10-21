@@ -104,6 +104,7 @@ class TurnDetail:
     system_response: str
     metrics: list[MetricSummary]
     trace_id: str | None = None
+    evaluation: dict[str, Any] | None = None  # Full evaluation data with metric_results
 
 
 @dataclass
@@ -226,8 +227,18 @@ class HTMLRenderer:
             template_dir: Path to templates directory
             output_dir: Path to output directory for rendered files
         """
+        from agenteval.config import settings
+        from agenteval.reporting.output_manager import get_output_manager
+
         self.template_dir = template_dir or self._get_default_template_dir()
-        self.output_dir = output_dir or Path("demo/evidence/reports")
+
+        # Use OutputManager's reports directory if no output_dir specified
+        # This ensures proper timestamped directory structure
+        if output_dir is None:
+            output_manager = get_output_manager()
+            self.output_dir = output_manager.reports_dir
+        else:
+            self.output_dir = Path(output_dir)
 
         # Ensure directories exist
         self.template_dir.mkdir(parents=True, exist_ok=True)
@@ -387,6 +398,117 @@ class HTMLRenderer:
 
         # Save to file
         filename = f"campaign_{campaign_id}.html"
+        output_path = self.save_html(html, filename)
+
+        logger.info(f"Campaign detail rendered successfully: {output_path}")
+        return output_path
+
+    def render_campaign_detail_from_data(self, campaign_data: dict, campaign_dir: Path | None = None) -> Path:
+        """
+        Render campaign detail HTML directly from report data.
+
+        Args:
+            campaign_data: Campaign report data from report-*.json
+            campaign_dir: Path to campaign directory (for loading turn data)
+
+        Returns:
+            Path to rendered HTML file
+        """
+        import json
+
+        campaign_id = campaign_data["campaign_id"]
+        logger.info(f"Rendering campaign detail from data for {campaign_id}...")
+
+        # Extract short campaign ID (first 8 chars)
+        campaign_id_short = campaign_id.split("-")[0] if "-" in campaign_id else campaign_id[:8]
+
+        # Prepare context dictionary directly from data
+        # Try "summary" first (from report JSON), fall back to "aggregate_metrics"
+        summary_data = campaign_data.get("summary", campaign_data.get("aggregate_metrics", {}))
+
+        # Build aggregate_metrics with required fields for template
+        total_turns = summary_data.get("total_turns", 0)
+        failed_turns = summary_data.get("failed_turns", 0)
+        passing_turns = total_turns - failed_turns
+
+        # Get scores (average_score is the overall quality score in reports)
+        avg_score = summary_data.get("average_score", 0.0)
+
+        aggregate_metrics = {
+            "passing_turns": passing_turns,
+            "overall_score": avg_score,  # This is the quality score
+            "quality_score": avg_score,
+            "safety_score": 0.0,  # Not in report JSON, default to 0
+        }
+
+        # Load turn data from DynamoDB export if available
+        turn_results = []
+        if campaign_dir:
+            turns_file = campaign_dir / "dynamodb" / "turns.json"
+            if turns_file.exists():
+                try:
+                    with open(turns_file) as f:
+                        turn_results = json.load(f)
+                    logger.info(f"Loaded {len(turn_results)} turns from {turns_file}")
+                except Exception as e:
+                    logger.warning(f"Failed to load turns from {turns_file}: {e}")
+
+        # Fallback to turn_results from campaign_data if available
+        if not turn_results:
+            turn_results = campaign_data.get("turn_results", [])
+
+        # Transform turn_results to extract metrics for template rendering
+        # This ensures turn.metrics is available in the template
+        for turn in turn_results:
+            turn_metrics = []
+            evaluation = turn.get("evaluation", {})
+            metric_results = evaluation.get("metric_results", {})
+
+            for name, metric_data in metric_results.items():
+                if isinstance(metric_data, dict):
+                    score = metric_data.get("score", 0.0)
+                else:
+                    score = metric_data
+
+                turn_metrics.append({
+                    "name": name,
+                    "score": score,
+                    "score_class": self.calculate_score_class(score),
+                })
+
+            # Add metrics list to turn dict for template access
+            turn["metrics"] = turn_metrics
+
+        context_dict = {
+            "campaign_id": campaign_id,
+            "campaign_id_short": campaign_id_short,
+            "summary": summary_data,
+            "aggregate_metrics": aggregate_metrics,
+            "turn_results": turn_results,
+            "failed_metric_counts": {},
+            "top_failed_metrics": [],
+        }
+
+        # Calculate failed metrics if we have turn results
+        if turn_results:
+            failed_counts = {}
+            for turn in turn_results:
+                evaluation = turn.get("evaluation", {})
+                metric_results = evaluation.get("metric_results", {})
+                for metric_name, metric_data in metric_results.items():
+                    if not metric_data.get("passed", False):
+                        failed_counts[metric_name] = failed_counts.get(metric_name, 0) + 1
+
+            context_dict["failed_metric_counts"] = failed_counts
+            # Sort by count and get top 5
+            sorted_failed = sorted(failed_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+            context_dict["top_failed_metrics"] = sorted_failed
+
+        # Render template
+        html = self.render_template("campaign_detail.html", context_dict)
+
+        # Save to file with short campaign ID
+        filename = f"campaign_{campaign_id_short}.html"
         output_path = self.save_html(html, filename)
 
         logger.info(f"Campaign detail rendered successfully: {output_path}")

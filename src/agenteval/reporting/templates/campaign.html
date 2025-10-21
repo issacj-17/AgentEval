@@ -314,6 +314,108 @@
             word-break: break-all;
         }
 
+        .judge-reasoning-section {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .reasoning-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #495057;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .reasoning-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 4px solid #667eea;
+        }
+
+        .reasoning-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .reasoning-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .reasoning-metric-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #495057;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .reasoning-score {
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .reasoning-score.passed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .reasoning-score.failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-icon {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .reasoning-body {
+            font-size: 0.9rem;
+            color: #495057;
+            line-height: 1.6;
+        }
+
+        .reasoning-text {
+            margin-bottom: 10px;
+        }
+
+        .reasoning-confidence {
+            margin-bottom: 10px;
+            color: #6c757d;
+        }
+
+        .reasoning-evidence {
+            margin-top: 10px;
+        }
+
+        .reasoning-evidence ul {
+            margin-top: 8px;
+            padding-left: 20px;
+        }
+
+        .reasoning-evidence li {
+            margin-bottom: 5px;
+            color: #6c757d;
+            font-style: italic;
+        }
+
         .charts-section {
             padding: 30px;
         }
@@ -492,6 +594,47 @@
                     </div>
                     {% endfor %}
                 </div>
+
+                {% if turn.evaluation and turn.evaluation.get('metric_results') %}
+                <div class="judge-reasoning-section">
+                    <h4 class="reasoning-title">Judge Evaluation Details</h4>
+                    {% for metric_name, metric_data in turn.evaluation.get('metric_results', {}).items() %}
+                    <div class="reasoning-card">
+                        <div class="reasoning-header">
+                            <span class="reasoning-metric-name">{{ metric_name }}</span>
+                            <span class="reasoning-score {{ 'passed' if metric_data.get('passed') else 'failed' }}">
+                                {{ "%.1f" | format(metric_data.get('score', 0) * 100) }}%
+                                {% if metric_data.get('passed') %}
+                                <span class="status-icon">✓</span>
+                                {% else %}
+                                <span class="status-icon">✗</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="reasoning-body">
+                            <div class="reasoning-text">
+                                <strong>Reasoning:</strong> {{ metric_data.get('reasoning', 'N/A') }}
+                            </div>
+                            {% if metric_data.get('confidence') %}
+                            <div class="reasoning-confidence">
+                                <strong>Confidence:</strong> {{ "%.0f" | format(metric_data.get('confidence') * 100) }}%
+                            </div>
+                            {% endif %}
+                            {% if metric_data.get('evidence') %}
+                            <div class="reasoning-evidence">
+                                <strong>Evidence:</strong>
+                                <ul>
+                                    {% for evidence_item in metric_data.get('evidence', []) %}
+                                    <li>"{{ evidence_item }}"</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
 
                 {% if turn.trace_id %}
                 <div class="trace-info">

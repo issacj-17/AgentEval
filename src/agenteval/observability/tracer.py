@@ -241,11 +241,52 @@ def trace_operation(operation_name: str, **attributes):
 
 
 def get_current_trace_id() -> str | None:
-    """Get the current trace ID"""
+    """Get the current trace ID in OpenTelemetry format (32-character hex)"""
     span = trace.get_current_span()
     if span and span.is_recording():
         trace_id = format(span.get_span_context().trace_id, "032x")
         return trace_id
+    return None
+
+
+def convert_otel_trace_id_to_xray(otel_trace_id: str) -> str:
+    """
+    Convert OpenTelemetry trace ID to AWS X-Ray format.
+
+    OpenTelemetry format: 32-character hexadecimal string
+    Example: "0af7651916cd43dd8448eb211c80319c"  # pragma: allowlist secret
+
+    AWS X-Ray format: 1-{8-hex-timestamp}-{24-hex-unique-id}
+    Example: "1-0af76519-16cd43dd8448eb211c80319c"
+
+    Args:
+        otel_trace_id: OpenTelemetry trace ID (32 hex characters)
+
+    Returns:
+        X-Ray formatted trace ID
+    """
+    if not otel_trace_id or len(otel_trace_id) != 32:
+        raise ValueError(f"Invalid OpenTelemetry trace ID: {otel_trace_id}")
+
+    # Split the 32-character trace ID into timestamp (8 chars) and unique ID (24 chars)
+    timestamp_hex = otel_trace_id[:8]
+    unique_id_hex = otel_trace_id[8:]
+
+    return f"1-{timestamp_hex}-{unique_id_hex}"
+
+
+def get_current_xray_trace_id() -> str | None:
+    """
+    Get the current trace ID in AWS X-Ray format.
+
+    Converts OpenTelemetry trace ID to X-Ray format for use with X-Ray APIs.
+
+    Returns:
+        X-Ray formatted trace ID (1-{8hex}-{24hex}) or None if no active span
+    """
+    otel_trace_id = get_current_trace_id()
+    if otel_trace_id:
+        return convert_otel_trace_id_to_xray(otel_trace_id)
     return None
 
 
@@ -386,9 +427,9 @@ def inject_agentcore_headers(
     headers = inject_trace_context(headers)
 
     # Add AWS X-Ray format trace ID if available
-    trace_id = get_current_trace_id()
-    if trace_id:
-        headers["X-Amzn-Trace-Id"] = f"Root=1-{trace_id[:8]}-{trace_id[8:]}"
+    xray_trace_id = get_current_xray_trace_id()
+    if xray_trace_id:
+        headers["X-Amzn-Trace-Id"] = f"Root={xray_trace_id}"
 
     # Add AgentCore-specific metadata as headers
     if campaign_id:

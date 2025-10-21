@@ -119,6 +119,31 @@ class DashboardService:
         logger.info("DashboardService initialized")
 
     # ========================================================================
+    # Helper Methods
+    # ========================================================================
+
+    @staticmethod
+    def _extract_score(evaluation: dict[str, Any]) -> float:
+        """
+        Extract score from evaluation data.
+
+        Handles both legacy format (top-level "score") and new format
+        (nested "aggregate_scores.quality").
+
+        Args:
+            evaluation: Evaluation dict
+
+        Returns:
+            Quality score between 0.0 and 1.0
+        """
+        # Try new format first (aggregate_scores.quality)
+        if "aggregate_scores" in evaluation:
+            return evaluation["aggregate_scores"].get("quality", 0.0)
+
+        # Fall back to legacy format (top-level score)
+        return evaluation.get("score", 0.0)
+
+    # ========================================================================
     # Main Orchestration Methods
     # ========================================================================
 
@@ -225,7 +250,7 @@ class DashboardService:
         failed_turns = total_turns - completed_turns
 
         # Calculate overall score
-        scores = [e.get("score", 0.0) for e in evaluations]
+        scores = [self._extract_score(e) for e in evaluations]
         overall_score = sum(scores) / len(scores) if scores else 0.0
 
         # Success rate
@@ -235,8 +260,8 @@ class DashboardService:
         total_evaluations = len(evaluations)
         unique_metrics = set()
         for eval_data in evaluations:
-            metrics = eval_data.get("metrics", {})
-            unique_metrics.update(metrics.keys())
+            metric_results = eval_data.get("metric_results", {})
+            unique_metrics.update(metric_results.keys())
         total_metrics = len(unique_metrics)
 
         # Build campaign summaries
@@ -291,7 +316,7 @@ class DashboardService:
 
         # Calculate score from evaluations
         campaign_evals = [e for e in evaluations if e.get("campaign_id") == campaign_id]
-        scores = [e.get("score", 0.0) for e in campaign_evals]
+        scores = [self._extract_score(e) for e in campaign_evals]
         avg_score = sum(scores) / len(scores) if scores else 0.0
 
         # Calculate duration
@@ -337,7 +362,7 @@ class DashboardService:
         for campaign in campaigns:
             campaign_id = campaign.get("campaign_id")
             campaign_evals = [e for e in evaluations if e.get("campaign_id") == campaign_id]
-            scores = [e.get("score", 0.0) for e in campaign_evals]
+            scores = [self._extract_score(e) for e in campaign_evals]
             avg = (sum(scores) / len(scores) * 100) if scores else 0.0
             campaign_scores.append(round(avg, 1))
 
@@ -349,9 +374,13 @@ class DashboardService:
         # Metric performance
         metric_scores_dict: dict[str, list[float]] = defaultdict(list)
         for eval_data in evaluations:
-            metrics = eval_data.get("metrics", {})
-            for metric_name, metric_value in metrics.items():
-                metric_scores_dict[metric_name].append(metric_value)
+            metric_results = eval_data.get("metric_results", {})
+            for metric_name, metric_data in metric_results.items():
+                if isinstance(metric_data, dict):
+                    score = metric_data.get("score", 0.0)
+                    metric_scores_dict[metric_name].append(score)
+                else:
+                    metric_scores_dict[metric_name].append(metric_data)
 
         metric_labels = list(metric_scores_dict.keys())
         metric_scores = [
@@ -432,7 +461,7 @@ class DashboardService:
 
         # Calculate metrics
         completed = sum(1 for t in turns if t.get("status") == "completed")
-        scores = [e.get("score", 0.0) for e in evaluations]
+        scores = [self._extract_score(e) for e in evaluations]
         overall_score = sum(scores) / len(scores) if scores else 0.0
 
         # Duration
@@ -480,9 +509,16 @@ class DashboardService:
         metric_scores_dict: dict[str, list[float]] = defaultdict(list)
 
         for eval_data in evaluations:
-            metrics = eval_data.get("metrics", {})
-            for metric_name, metric_value in metrics.items():
-                metric_scores_dict[metric_name].append(metric_value)
+            # Use "metric_results" which contains nested metric data
+            metric_results = eval_data.get("metric_results", {})
+            for metric_name, metric_data in metric_results.items():
+                # Extract score from nested structure
+                if isinstance(metric_data, dict):
+                    score = metric_data.get("score", 0.0)
+                    metric_scores_dict[metric_name].append(score)
+                else:
+                    # Fallback for legacy flat structure
+                    metric_scores_dict[metric_name].append(metric_data)
 
         summaries = []
         for metric_name, scores in metric_scores_dict.items():
@@ -516,20 +552,30 @@ class DashboardService:
         for turn in turns:
             turn_number = turn.get("turn_number", 0)
 
-            # Find evaluation for this turn
+            # Find evaluation for this turn - check both separate evaluations list
+            # and embedded evaluation in turn data
             turn_evals = [e for e in evaluations if e.get("turn_number") == turn_number]
-            score = turn_evals[0].get("score", 0.0) if turn_evals else 0.0
+
+            # Fallback: Check if evaluation is already embedded in turn data
+            if not turn_evals and "evaluation" in turn:
+                turn_evals = [turn["evaluation"]]
+
+            score = self._extract_score(turn_evals[0]) if turn_evals else 0.0
 
             # Build metric summaries for this turn
             turn_metrics = []
             if turn_evals:
-                metrics = turn_evals[0].get("metrics", {})
-                for name, value in metrics.items():
+                metric_results = turn_evals[0].get("metric_results", {})
+                for name, metric_data in metric_results.items():
+                    if isinstance(metric_data, dict):
+                        metric_score = metric_data.get("score", 0.0)
+                    else:
+                        metric_score = metric_data
                     turn_metrics.append(
                         MetricSummary(
                             name=name,
-                            score=value,
-                            score_class=self.html_renderer.calculate_score_class(value),
+                            score=metric_score,
+                            score_class=self.html_renderer.calculate_score_class(metric_score),
                         )
                     )
 
@@ -545,6 +591,7 @@ class DashboardService:
                     system_response=turn.get("system_response", ""),
                     metrics=turn_metrics,
                     trace_id=turn.get("trace_id"),
+                    evaluation=turn_evals[0] if turn_evals else None,  # Include full evaluation data
                 )
             )
 
@@ -604,7 +651,7 @@ class DashboardService:
         completed_turns = sum(1 for t in turns if t.get("status") == "completed")
         failed_turns = total_turns - completed_turns
 
-        scores = [e.get("score", 0.0) for e in evaluations]
+        scores = [self._extract_score(e) for e in evaluations]
         overall_score = sum(scores) / len(scores) if scores else 0.0
 
         success_rate = completed_turns / total_turns if total_turns > 0 else 0.0
@@ -643,8 +690,8 @@ class DashboardService:
         # Unique metrics
         unique_metrics = set()
         for eval_data in evaluations:
-            metrics = eval_data.get("metrics", {})
-            unique_metrics.update(metrics.keys())
+            metric_results = eval_data.get("metric_results", {})
+            unique_metrics.update(metric_results.keys())
 
         return SummaryContext(
             generated_at=datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"),
@@ -727,9 +774,13 @@ class DashboardService:
         if evaluations:
             metric_scores_dict: dict[str, list[float]] = defaultdict(list)
             for eval_data in evaluations:
-                metrics = eval_data.get("metrics", {})
-                for name, value in metrics.items():
-                    metric_scores_dict[name].append(value)
+                metric_results = eval_data.get("metric_results", {})
+                for name, metric_data in metric_results.items():
+                    if isinstance(metric_data, dict):
+                        score = metric_data.get("score", 0.0)
+                        metric_scores_dict[name].append(score)
+                    else:
+                        metric_scores_dict[name].append(metric_data)
 
             low_metrics = [
                 (name, sum(scores) / len(scores))
@@ -821,9 +872,18 @@ class DashboardService:
         Returns:
             Dictionary mapping report type to file path
         """
+        from agenteval.reporting.output_manager import get_output_manager
+
         logger.info("Generating markdown reports...")
 
-        output_dir = self.config.output_dir or Path("demo/evidence/reports")
+        # Use config output_dir if provided, otherwise use OutputManager's reports directory
+        # This ensures proper timestamped directory structure
+        if self.config.output_dir:
+            output_dir = self.config.output_dir / "reports"
+        else:
+            output_manager = get_output_manager()
+            output_dir = output_manager.reports_dir
+
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # Generate simple markdown summary
@@ -848,7 +908,7 @@ class DashboardService:
         turns = results.campaign_data.turns
         evaluations = results.campaign_data.evaluations
 
-        scores = [e.get("score", 0.0) for e in evaluations]
+        scores = [self._extract_score(e) for e in evaluations]
         overall_score = sum(scores) / len(scores) if scores else 0.0
 
         md = f"""# AgentEval Results Summary
@@ -875,7 +935,7 @@ class DashboardService:
             campaign_turns = [t for t in turns if t.get("campaign_id") == campaign_id]
             campaign_evals = [e for e in evaluations if e.get("campaign_id") == campaign_id]
 
-            campaign_scores = [e.get("score", 0.0) for e in campaign_evals]
+            campaign_scores = [self._extract_score(e) for e in campaign_evals]
             campaign_avg = sum(campaign_scores) / len(campaign_scores) if campaign_scores else 0.0
 
             md += f"""### Campaign: {campaign_id[:8]}
@@ -962,8 +1022,13 @@ async def create_dashboard_service(
     from agenteval.application.results_service import create_results_service
     from agenteval.reporting.html_renderer import create_html_renderer
 
+    # Create results service with proper output directory
     results_service = await create_results_service()
-    html_renderer = create_html_renderer()
+
+    # Pass output_dir to HTMLRenderer if config is provided
+    # This ensures both services use the same timestamped directory structure
+    html_output_dir = config.output_dir if config else None
+    html_renderer = create_html_renderer(output_dir=html_output_dir)
 
     return DashboardService(
         results_service=results_service,

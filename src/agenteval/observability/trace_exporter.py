@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from agenteval.aws.xray import XRayClient
+from agenteval.observability.tracer import convert_otel_trace_id_to_xray
 
 logger = logging.getLogger(__name__)
 
@@ -415,7 +416,23 @@ class TraceExporter:
 
             # Filter by trace IDs if provided
             if trace_ids:
-                summaries = [s for s in summaries if s.get("Id") in trace_ids]
+                # Convert OpenTelemetry trace IDs to X-Ray format for comparison
+                xray_trace_ids = []
+                for tid in trace_ids:
+                    try:
+                        # If already in X-Ray format, keep as-is
+                        if tid and len(tid) > 2 and tid.startswith("1-"):
+                            xray_trace_ids.append(tid)
+                        # If OpenTelemetry format (32 hex chars), convert to X-Ray
+                        elif tid and len(tid) == 32:
+                            xray_trace_ids.append(convert_otel_trace_id_to_xray(tid))
+                        else:
+                            logger.warning(f"Skipping invalid trace ID format: {tid}")
+                    except Exception as e:
+                        logger.warning(f"Failed to convert trace ID {tid}: {e}")
+                        continue
+
+                summaries = [s for s in summaries if s.get("Id") in xray_trace_ids]
 
             # Batch get full traces
             trace_ids_to_fetch = [s.get("Id") for s in summaries]
@@ -545,8 +562,10 @@ async def create_trace_exporter(
     Returns:
         Configured TraceExporter instance
     """
+    from agenteval.config import settings
+
     config = TraceExportConfig(
-        output_dir=output_dir or Path("demo/evidence/traces"),
+        output_dir=output_dir or Path(settings.app.evidence_report_output_dir) / "traces",
         export_format=export_format,
         max_traces=max_traces,
     )
