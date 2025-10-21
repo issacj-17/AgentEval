@@ -1,11 +1,11 @@
 """
 Attack Library - YAML-based security attack patterns
 
-Implements attack patterns across 4 categories aligned with OWASP LLM Top 10:
-1. Injection Attacks (15 patterns)
-2. Jailbreak Attacks (15 patterns)
-3. Social Engineering (10 patterns)
-4. Encoding Attacks (10 patterns)
+Implements 20 attack patterns across 4 categories aligned with OWASP LLM Top 10:
+1. Injection Attacks
+2. Jailbreak Attacks
+3. Social Engineering
+4. Encoding Attacks
 
 Extends BaseLibrary for consistency across all agent libraries.
 """

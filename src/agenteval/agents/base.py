@@ -102,16 +102,19 @@ class BaseAgent(ABC):
         if not self.bedrock:
             raise RuntimeError("Bedrock client not initialized. Call initialize() first.")
 
+        # Resolve the actual model ID to use
+        actual_model_id = model_id or self._get_default_model()
+
         with trace_operation(
             "llm_invocation",
             agent_id=self.agent_id,
             agent_type=self.agent_type,
-            model_id=model_id or "default",
+            model_id=actual_model_id,
         ) as span:
             try:
                 response = await self.bedrock.invoke_model(
                     prompt=prompt,
-                    model_id=model_id or self._get_default_model(),
+                    model_id=actual_model_id,
                     max_tokens=max_tokens,
                     temperature=temperature,
                     system_prompt=system_prompt,

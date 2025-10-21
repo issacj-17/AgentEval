@@ -205,8 +205,20 @@ class ReporterAgent(BaseAgent):
 
         # Turn statistics
         completed_turns = sum(1 for t in turns if t.get("status") == "completed")
-        failed_turns = total_turns - completed_turns
-        success_rate = completed_turns / total_turns if total_turns > 0 else 0.0
+
+        # Calculate passing_turns based on quality checks (all_passed from evaluations)
+        # A turn "passes" if all its metrics passed quality thresholds
+        passing_turns = sum(
+            1 for e in evaluations
+            if e.get("pass_fail", {}).get("all_passed", False) or e.get("all_passed", False)
+        )
+
+        # Success rate should be based on passing quality checks, not just execution completion
+        # This correctly represents "% of turns meeting quality standards"
+        success_rate = passing_turns / total_turns if total_turns > 0 else 0.0
+
+        # Failed turns = turns that completed but didn't pass quality checks
+        failed_turns = total_turns - passing_turns
 
         # Score statistics
         scores = [e.get("score", 0.0) for e in evaluations]

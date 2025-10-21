@@ -39,6 +39,10 @@ class BedrockClient:
                 settings.aws.bedrock_judge_model or ""
             ).lower(): settings.aws.bedrock_judge_profile_arn,
         }
+        logger.info(
+            "BedrockClient initialized with model profiles",
+            extra={"model_profiles": self._model_profiles},
+        )
         self._fallback_models: dict[str, str | None] = {
             (
                 settings.aws.bedrock_persona_model or ""
@@ -111,6 +115,15 @@ class BedrockClient:
             # Use inference profile ARN as modelId if available, otherwise use model_id
             profile_arn = self._resolve_profile(model_id)
             effective_model_id = profile_arn if profile_arn else model_id
+
+            logger.info(
+                "Resolving model profile for Claude invocation",
+                extra={
+                    "requested_model_id": model_id,
+                    "resolved_profile_arn": profile_arn,
+                    "effective_model_id": effective_model_id,
+                },
+            )
 
             invoke_kwargs: dict[str, Any] = {
                 "modelId": effective_model_id,
@@ -358,8 +371,20 @@ class BedrockClient:
     def _resolve_profile(self, model_id: str | None) -> str | None:
         """Return a configured inference profile ARN for the given model, if any."""
         if not model_id:
+            logger.debug("_resolve_profile called with None model_id")
             return None
-        return self._model_profiles.get(model_id.lower())
+        lookup_key = model_id.lower()
+        profile_arn = self._model_profiles.get(lookup_key)
+        logger.debug(
+            "Profile resolution lookup",
+            extra={
+                "model_id": model_id,
+                "lookup_key": lookup_key,
+                "profile_arn": profile_arn,
+                "available_keys": list(self._model_profiles.keys()),
+            },
+        )
+        return profile_arn
 
     async def _maybe_invoke_fallback(
         self,
@@ -379,7 +404,10 @@ class BedrockClient:
         error_message = error.response.get("Error", {}).get("Message", "")
 
         # Only consider fallbacks for inference profile or throughput validation errors
-        if error_code != "ValidationException" or "inference profile" not in error_message.lower():
+        if error_code != "ValidationException" or (
+            "inference profile" not in error_message.lower()
+            and "on-demand throughput" not in error_message.lower()
+        ):
             return None
 
         fallback_model = self._fallback_models.get(original_model.lower())
