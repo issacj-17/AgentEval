@@ -35,7 +35,7 @@ root cause analysis.
 
 1. **Judge Agents** - Comprehensive evaluation
 
-   - 13 evaluation metrics (Quality, Safety, Agent-specific)
+   - 11 evaluation metrics (4 Quality, 4 Safety, 3 Agent-specific)
    - Multi-judge debate mechanism
    - Confidence scoring
 
@@ -43,19 +43,24 @@ root cause analysis.
 
 **The only platform that shows you exactly WHERE your GenAI application failed.**
 
-- W3C Trace Context propagation
-- AWS X-Ray integration
-- Correlates evaluation scores with distributed traces
-- Identifies root causes with actionable recommendations
+- **W3C Trace Context propagation** - OpenTelemetry standard for distributed tracing
+- **AWS X-Ray integration** - Automatic trace ID format conversion (OpenTelemetry ↔ X-Ray)
+- **Trace correlation** - Links evaluation scores with distributed traces for root cause analysis
+- **Actionable insights** - Identifies specific code paths and services causing failures
+- **Model-level visibility** - Traces show actual model IDs (e.g., `claude-haiku-4-5`) for debugging
 
 ### Evidence Insights Dashboard
 
-- Generate a consolidated Markdown summary with `python -m agenteval.reporting.dashboard --latest`
-  (add `PYTHONPATH=src` when running from source)
-- Portfolio snapshot highlights overall scores, success rates, and failing metrics per campaign
-- Drill-down sections link directly to S3 reports, DynamoDB snapshots, and logs pulled by
-  `scripts/run-live-demo.sh`
-- Ready to share with stakeholders and hackathon judges without navigating dozens of JSON files
+- **Automatic generation** with every live demo run - no manual steps required
+- **Quick access** via `demo/evidence/latest/dashboard.md` after any run
+- **Comprehensive view**: Portfolio snapshot highlights overall scores, success rates, and failing
+  metrics per campaign
+- **Direct links**: Drill-down sections link to campaign data, S3 reports, DynamoDB snapshots, and
+  logs
+- **Judge-friendly**: Ready to share with stakeholders and hackathon judges without navigating
+  dozens of JSON files
+- **Manual generation**: `python -m agenteval.reporting.dashboard --latest` (add `PYTHONPATH=src`
+  when running from source)
 
 ## 🚀 Quick Start
 
@@ -125,35 +130,78 @@ the following permissions:
 
 ### Live Demo Workflow
 
-AgentEval ships with a fully automated AWS validation script. A successful run will:
+AgentEval ships with a fully automated AWS validation script that tests against a live chatbot
+application. A successful run will:
 
-- Provision every required AWS resource (tables, buckets, event bus, Bedrock access checks).
-- Execute persona and red-team campaigns against real Bedrock models.
-- Pull DynamoDB exports, S3 results, and rendered or locally generated reports into
-  `demo/evidence/pulled-reports/<timestamp>/`.
-- Refresh the summary dashboard at `demo/evidence/live-demo-latest.md`, which links to every
-  artefact for reviewers.
-- Stream console output to `demo/evidence/live-demo-logs/run-<timestamp>.log` for auditability.
-- Capture complete AWS X-Ray trace documents for each campaign in `demo/evidence/trace-reports/`.
+- **Automatically start the demo chatbot** (Nebula banking assistant)
+- Provision every required AWS resource (tables, buckets, event bus, Bedrock access checks)
+- Execute 10 persona campaigns + 1 red-team campaign against the live chatbot using real Bedrock
+  models
+- Pull DynamoDB exports, S3 results into a timestamped run directory
+- **Generate interactive HTML dashboards** with drill-down campaign detail pages showing actual
+  chatbot responses
+- Generate comprehensive markdown summaries with links to all artefacts for reviewers
+- Stream console output to structured log files for auditability
+- Capture complete AWS X-Ray trace documents for each campaign
+
+#### Unified Output Structure
+
+**All demo outputs are now organized in a single timestamped directory:**
+
+```
+demo/evidence/
+├── {YYYYMMDDTHHMMSS}-run/    # Timestamped run directory
+│   ├── campaigns/             # All campaign data
+│   │   └── {campaign-id}/
+│   │       ├── dynamodb/      # DynamoDB exports (campaigns, turns, evaluations)
+│   │       └── s3/            # S3 downloads (results, reports)
+│   ├── reports/               # Generated HTML/markdown reports
+│   ├── logs/                  # Execution logs
+│   ├── traces/                # X-Ray trace reports
+│   ├── dashboard.md           # Evidence dashboard
+│   └── summary.md             # Summary report
+└── latest -> {timestamp}-run/ # Symlink to latest run for easy access
+```
+
+**Benefits:**
+
+- ✅ **Zero fragmentation** - all outputs in one place
+- ✅ **Easy navigation** - consistent structure across runs
+- ✅ **Audit-friendly** - complete history preserved per run
+- ✅ **Quick access** - use `demo/evidence/latest/` to view most recent results
 
 Typical sequence:
 
 ```bash
+# IMPORTANT: Activate virtual environment first
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
 # One-time provisioning
-scripts/setup-live-demo.sh --region us-east-1
+./scripts/setup-live-demo.sh --region us-east-1
 
 # Sanity check
-scripts/check-aws-services.sh --region us-east-1
+./scripts/check-aws-services.sh --region us-east-1
 
-# Full demo (add --quick for dry runs, --auto-teardown for automatic cleanup)
-scripts/run-live-demo.sh --region us-east-1
+# Full demo with live chatbot (automatically starts Nebula banking assistant)
+# Add --quick for campaign creation only (no turn execution)
+# Add --skip-setup to skip infrastructure provisioning
+# Add --auto-teardown for automatic cleanup after demo
+./scripts/run-full-demo.sh --region us-east-1 --skip-setup
+
+# View HTML dashboard (interactive with drill-down)
+open outputs/latest/reports/dashboard.html
+
+# View markdown reports
+cat outputs/latest/dashboard.md
+cat outputs/latest/summary.md
 
 # When finished
-scripts/teardown-live-demo.sh --region us-east-1 --force
+./scripts/teardown-live-demo.sh --region us-east-1 --force
 ```
 
-> Tip: The summary markdown file is recreated on each run—feel free to commit it for judges, but
-> avoid manual edits.
+> **⚠️ Important:** Always activate your virtual environment before running any scripts! **Note:**
+> Each run creates a new timestamped directory in `outputs/`, preserving complete history. The
+> `latest` symlink always points to the most recent run for convenience.
 
 **2. Amazon DynamoDB**
 
@@ -731,11 +779,12 @@ pre-commit run --all-files
 agenteval/
 ├── src/agenteval/           # Main package
 │   ├── config.py            # Configuration management
-│   ├── container.py         # DI Container (NEW)
-│   ├── application/         # Application Services (NEW)
+│   ├── container.py         # DI Container
+│   ├── application/         # Application Services
 │   │   ├── campaign_service.py  # Campaign lifecycle
-│   │   └── report_service.py    # Report generation
-│   ├── factories/           # Agent Factories (NEW)
+│   │   ├── report_service.py    # Report generation
+│   │   └── dashboard_service.py # Dashboard generation
+│   ├── factories/           # Agent Factories
 │   │   ├── base.py          # Factory base class
 │   │   ├── persona_factory.py   # Persona creation
 │   │   ├── redteam_factory.py   # Red team creation
@@ -760,21 +809,40 @@ agenteval/
 │   ├── evaluation/          # Metrics & correlation
 │   ├── orchestration/       # Campaign orchestration
 │   │   └── campaign.py      # CampaignOrchestrator (DI-enabled)
+│   ├── reporting/           # Output & dashboard generation
+│   │   ├── output_manager.py    # Centralized output paths (NEW)
+│   │   ├── dashboard.py         # Dashboard generation
+│   │   ├── html_renderer.py     # HTML report renderer
+│   │   └── pull.py              # AWS artefact downloader
 │   ├── api/                 # REST API (DI-enabled routes)
-│   │   ├── lifespan.py      # FastAPI lifecycle manager (NEW)
+│   │   ├── lifespan.py      # FastAPI lifecycle manager
 │   │   └── routes/          # API endpoints
 │   └── cli/                 # CLI tool
+│       └── live_demo.py     # Live demo orchestrator
 ├── personas/                # Persona definitions
 │   └── library.yaml         # 10 pre-configured personas
 ├── tests/                   # Test suite
 │   ├── conftest.py          # DI-aware fixtures (Enhanced)
-│   ├── test_utils.py        # Mock builders (NEW)
+│   ├── test_utils.py        # Mock builders
 │   ├── unit/                # Unit tests
+│   │   ├── test_output_manager.py   # OutputManager tests (NEW)
+│   │   ├── test_campaign_service.py # Service tests
+│   │   └── ...              # Other unit tests
 │   └── integration/         # Integration tests
-│       ├── test_campaign_service.py   # Service tests (NEW)
-│       ├── test_report_service.py     # Service tests (NEW)
-│       ├── test_agent_factories.py    # Factory tests (NEW)
-│       └── test_orchestrator_with_factories.py  # DI tests (NEW)
+│       ├── test_campaign_service.py   # Service tests
+│       ├── test_report_service.py     # Service tests
+│       ├── test_agent_factories.py    # Factory tests
+│       └── test_orchestrator_with_factories.py  # DI tests
+├── demo/                    # Live demo scripts
+│   ├── agenteval_live_demo.py   # Live demo runner
+│   ├── agenteval_demo_mock.py   # Mock demo (no AWS)
+│   └── evidence/            # Demo outputs (gitignored)
+│       ├── {timestamp}-run/ # Timestamped run directory
+│       └── latest/          # Symlink to latest run
+├── scripts/                 # Setup and utility scripts
+│   ├── setup-live-demo.sh   # One-time AWS resource provisioning
+│   ├── run-live-demo.sh     # Execute live demo
+│   └── teardown-live-demo.sh # Cleanup AWS resources
 ├── infrastructure/          # Cloud infrastructure definitions
 └── req-docs/                # Requirements documentation (BRD, PRD, TAD, etc.)
 ```

@@ -168,7 +168,7 @@ all_attack_categories = [
 ]
 ```
 
-### 2. Via Config File (demo/comprehensive_demo_config.yaml)
+### 2. Via Config File (demo/demo_config.yaml)
 
 ```yaml
 demo_settings:
@@ -226,7 +226,7 @@ python demo/agenteval_chatbot_demo.py --region us-east-1
 ### Run Custom Configuration
 
 ```bash
-# Modify demo/comprehensive_demo_config.yaml
+# Modify demo/demo_config.yaml
 # Set enabled: true/false for specific personas/attacks
 # Then run demo
 python demo/agenteval_chatbot_demo.py --region us-east-1
