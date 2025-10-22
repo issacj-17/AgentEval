@@ -15,6 +15,23 @@ AgentEval is a comprehensive evaluation framework for GenAI applications featuri
 that simulate users, perform security testing, and provide detailed evaluations with trace-based
 root cause analysis.
 
+## 📌 Submission Snapshot (Updated 2025-10-22 06:45 SGT)
+
+- **Submission deadline:** Oct 22 2025 17:00 PT (Oct 23 2025 08:00 SGT) — all submission materials
+  target this cut-off.
+- **Test evidence:** 739 tests passing with 70 % coverage (`FINAL_COMPREHENSIVE_TEST_REPORT.md`,
+  `htmlcov/` snapshot from 2025-10-20).
+- **Demo video:** Final ≤3 min walkthrough recording in progress; YouTube link will land in
+  `SUBMISSION_GUIDE.md` by Oct 22 2025 16:00 SGT.
+- **Judge access:** Hosted endpoint & credentials tracked in `req-docs/JUDGE_ACCESS.md` with
+  delivery ETA Oct 22 2025 18:00 SGT.
+- **Freeze plan:** See `req-docs/SUBMISSION_FREEZE.md` for the change-control timeline aligned to
+  the revised deadline.
+- **Infrastructure (future work):** Deployment templates and IaC scripts archived under
+  `future/infrastructure_archive/` for post-hackathon hardening.
+- **Observability sidecars (future work):** Collector topology proposal tracked in
+  `future/sidecar_architecture.md`.
+
 ## 🌟 Features
 
 ### Three Agent Types

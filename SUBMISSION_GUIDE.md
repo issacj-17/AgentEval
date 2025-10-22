@@ -4,6 +4,18 @@
 **Team**: AgentEval Team **Submission Date**: October 2025 **Hackathon**: AWS AI Agent Global
 Hackathon 2025
 
+## 📌 Submission Snapshot (Updated 2025-10-22 06:45 SGT)
+
+- **Submission deadline:** Oct 22 2025 17:00 PT (Oct 23 2025 08:00 SGT). All freeze checkpoints
+  align with this window.
+- **Testing status:** 739 tests passing with 70 % coverage (`FINAL_COMPREHENSIVE_TEST_REPORT.md`,
+  `htmlcov/` export dated 2025-10-20).
+- **Demo video:** ≤3 min walkthrough in production; placeholder link below will be swapped by
+  Oct 22 2025 16:00 SGT.
+- **Judge access:** Hosted endpoint & credentials tracked in `req-docs/JUDGE_ACCESS.md` (ETA
+  Oct 22 2025 18:00 SGT).
+- **Change control:** Follow `req-docs/SUBMISSION_FREEZE.md` for the extended schedule.
+
 ______________________________________________________________________
 
 ## 🎯 Quick Start for Judges
@@ -141,7 +153,7 @@ ______________________________________________________________________
 **3. Technical Execution (50%)**
 
 - **Architecture**: Production-grade FastAPI + OpenTelemetry + AWS services
-- **Quality**: 93% test coverage, comprehensive error handling
+- **Quality**: 70% coverage across 739 tests, comprehensive error handling
 - **Documentation**: Complete technical docs in `req-docs/TAD_Technical_Architecture.md`
 - **Reproducibility**: Automated setup/teardown scripts in `scripts/`
 
@@ -320,7 +332,7 @@ ______________________________________________________________________
 
 | Metric                  | Value                         |
 | ----------------------- | ----------------------------- |
-| **Test Coverage**       | 93%                           |
+| **Test Coverage**       | 70% (739 tests)               |
 | **Agent Types**         | 3 (Persona, Red Team, Judge)  |
 | **Personas**            | 10 pre-configured             |
 | **Attack Patterns**     | 50+                           |
@@ -483,7 +495,7 @@ ______________________________________________________________________
 ### **Technical Excellence**
 
 - Production-grade architecture with dependency injection
-- Comprehensive test coverage (93%)
+- Comprehensive test coverage (70% across 739 tests)
 - AWS best practices (IAM, encryption, monitoring)
 - OpenTelemetry integration for observability
 

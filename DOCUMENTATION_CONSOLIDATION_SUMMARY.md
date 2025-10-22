@@ -131,7 +131,7 @@ ______________________________________________________________________
 **Files**:
 
 1. diagram.md (2.3KB) - Mermaid flowchart of system architecture
-1. future_sidecar_architecture.md (1.8KB) - Future architecture plans
+1. future/sidecar_architecture.md (1.8KB) - Future architecture plans
 
 **Assessment**: Well-organized, serves specific purpose (visual diagrams)
 

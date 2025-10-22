@@ -1,21 +1,24 @@
 # Judge Access & Testing Instructions
 
+**Last updated:** 2025-10-22 06:45 SGT
+
 Provide this document (or a copy) in the Devpost submission so judges can evaluate the project
 without requesting additional information.
 
 ## 1. Deployment URL
 
-- **Environment:** `https://postman-echo.com/post` _(default demo target; replace with production
-  URL when available)_
+- **Current verification target:** `https://postman-echo.com/post` (kept for automated smoke tests).
+- **Final judge endpoint:** Dedicated staging environment URL will be published here and on Devpost
+  by **Oct 22 2025 18:00 SGT** (Oct 22 2025 03:00 PT) once SSL and monitoring checks pass.
 - **Availability:** 24/7 uptime from Oct 14 2025 to Nov 13 2025 08:00 SGT (Oct 12 2025 to
   Nov 12 2025 17:00 PT).
 
 ## 2. Credentials
 
-| Role         | Username           | Password / API Key | Notes                                                            |
-| ------------ | ------------------ | ------------------ | ---------------------------------------------------------------- |
-| Judge Viewer | _TBD_              | _TBD_              | Provide read-only dashboard access credentials before submission |
-| API Key      | `X-API-Key` header | _TBD_              | Securely share evaluation key covering `/api/v1/*` endpoints     |
+| Role         | Username                                                         | Password / API Key              | Notes                                           |
+| ------------ | ---------------------------------------------------------------- | ------------------------------- | ----------------------------------------------- |
+| Judge Viewer | _Issued via Devpost private message (ETA Oct 22 2025 18:00 SGT)_ | _Issued with above message_     | Read-only dashboard account with feature parity |
+| API Key      | `X-API-Key` header                                               | _Issued with credential bundle_ | Covers `/api/v1/*`; rotated after judging       |
 
 Provide secure delivery of secrets (e.g., via Devpost private message or secure share). Rotate
 credentials after judging.

@@ -2,6 +2,18 @@
 
 **AWS AI Agent Global Hackathon 2025**
 
+## 📌 Submission Snapshot (Updated 2025-10-22 06:45 SGT)
+
+- **Submission deadline:** Oct 22 2025 17:00 PT (Oct 23 2025 08:00 SGT).
+- **Testing status:** 739 tests passing with 70 % coverage (`FINAL_COMPREHENSIVE_TEST_REPORT.md`,
+  `htmlcov/` export 2025-10-20).
+- **Demo video:** ≤3 min walkthrough finalizing; link will be shared via `SUBMISSION_GUIDE.md` by
+  Oct 22 2025 16:00 SGT.
+- **Judge access:** Hosted endpoint & credentials defined in `req-docs/JUDGE_ACCESS.md`, delivery
+  ETA Oct 22 2025 18:00 SGT.
+- **Key run commands:** Mock demo (`python demo/agenteval_demo_mock.py`) and live demo
+  (`scripts/run-live-demo.sh --auto-teardown`).
+
 ______________________________________________________________________
 
 ## ⚡ 5-Minute Quick Start
@@ -58,7 +70,7 @@ ______________________________________________________________________
 
 ✅ **Code Quality**
 
-- 93% test coverage: Run `pytest tests/ --cov`
+- 70% test coverage across 739 tests: run `pytest -q --cov=agenteval`
 - Comprehensive error handling
 - Well-documented code
 
@@ -216,7 +228,7 @@ ______________________________________________________________________
 
    - Dependency injection for testability
    - OpenTelemetry integration
-   - 93% test coverage
+   - 70% coverage across 739 tests
 
 1. **Comprehensive Testing**
 
@@ -237,7 +249,7 @@ ______________________________________________________________________
 | Metric                 | Value                         |
 | ---------------------- | ----------------------------- |
 | **Lines of Code**      | ~8,000+                       |
-| **Test Coverage**      | 93%                           |
+| **Test Coverage**      | 70% (739 tests)               |
 | **AWS Services**       | 6                             |
 | **Agent Types**        | 3                             |
 | **Personas**           | 10                            |
