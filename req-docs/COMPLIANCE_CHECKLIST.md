@@ -15,7 +15,7 @@ Use this checklist to verify readiness before the Oct 20 2025 17:00 PT dea
 
 - [ ] Devpost registration confirmed; proof stored.
 - [ ] AWS promo credits usage documented; no prohibited funding received.
-- [ ] Eligibility statements signed by all team members.
+- [ ] Eligibility statements signed by solo developer.
 - [ ] Submission freeze plan approved (`SUBMISSION_FREEZE.md`).
 - [ ] Judge access credentials prepared (`JUDGE_ACCESS.md`).
 - [ ] Privacy and publicity acknowledgements added to README/Devpost.

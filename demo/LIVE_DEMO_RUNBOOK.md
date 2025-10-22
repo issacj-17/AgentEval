@@ -138,8 +138,7 @@ Commands were executed from the repository root with the virtual environment act
 
 1. `scripts/run-live-demo.sh --region us-east-1`
 
-   - Health check surfaced expected warnings for unused resources (CloudFormation stack, ECS
-     cluster, cost explorer).
+   - Health check confirmed AWS services connectivity (DynamoDB, S3, Bedrock, EventBridge).
    - Ran two full campaigns; outputs streamed in
      `demo/evidence/live-demo-logs/run-20251019T023534.log`.
    - Artefacts pulled to `demo/evidence/pulled-reports/20251019T023832`, with summaries in

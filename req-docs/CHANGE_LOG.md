@@ -5,12 +5,12 @@ links/screenshots if repository history is private.
 
 ## Summary Table
 
-| Date (PT)  | Commit / PR ID | Description                                             | Impacted Modules                                                                                                                                       | Reviewer  |
-| ---------- | -------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
-| 2025-10-11 | DI-Refactor    | Comprehensive DI refactoring (Stages 1-6)               | `src/agenteval/container.py`, `src/agenteval/factories/`, `src/agenteval/application/`, `src/agenteval/orchestration/`, `src/agenteval/api/`, `tests/` | Team Lead |
-| 2025-10-12 | DOC-Sync       | Documentation synchronization across all markdown files | `README.md`, `req-docs/PROGRESS_CHECKLIST.md`, `req-docs/TAD_Technical_Architecture.md`, `req-docs/AGENTS.md`                                          | Team Lead |
-| 2025-09-10 | `abc1234`      | Example: Implemented Bedrock Claude orchestration       | `src/agenteval/orchestration`                                                                                                                          | Alex T.   |
-|            |                |                                                         |                                                                                                                                                        |           |
+| Date (PT)  | Commit / PR ID | Description                                             | Impacted Modules                                                                                                                                       | Reviewer            |
+| ---------- | -------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------- |
+| 2025-10-11 | DI-Refactor    | Comprehensive DI refactoring (Stages 1-6)               | `src/agenteval/container.py`, `src/agenteval/factories/`, `src/agenteval/application/`, `src/agenteval/orchestration/`, `src/agenteval/api/`, `tests/` | Solo Developer      |
+| 2025-10-12 | DOC-Sync       | Documentation synchronization across all markdown files | `README.md`, `req-docs/PROGRESS_CHECKLIST.md`, `req-docs/TAD_Technical_Architecture.md`, `req-docs/AGENTS.md`                                          | Solo Developer      |
+| 2025-09-10 | `abc1234`      | Example: Implemented Bedrock Claude orchestration       | `src/agenteval/orchestration`                                                                                                                          | Issac Jose Ignatius |
+|            |                |                                                         |                                                                                                                                                        |                     |
 
 ## Narrative Summary
 

@@ -429,5 +429,5 @@ aws cloudwatch get-metric-statistics \
 For issues or questions:
 
 - GitHub Issues: https://github.com/issacj-17/AgentEval/issues
-- Email: team@agenteval.dev
+- Email: issac.jose@example.com
 - Documentation: https://agenteval.dev/docs

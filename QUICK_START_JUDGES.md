@@ -5,7 +5,7 @@
 ## 📌 Submission Snapshot (Updated 2025-10-22 06:45 SGT)
 
 - **Submission deadline:** Oct 22 2025 17:00 PT (Oct 23 2025 08:00 SGT).
-- **Testing status:** 739 tests passing with 70 % coverage (`FINAL_COMPREHENSIVE_TEST_REPORT.md`,
+- **Testing status:** 630 tests passing with 70 % coverage (`FINAL_COMPREHENSIVE_TEST_REPORT.md`,
   `htmlcov/` export 2025-10-20).
 - **Demo video:** ≤3 min walkthrough finalizing; link will be shared via `SUBMISSION_GUIDE.md` by
   Oct 22 2025 16:00 SGT.
@@ -70,7 +70,7 @@ ______________________________________________________________________
 
 ✅ **Code Quality**
 
-- 70% test coverage across 739 tests: run `pytest -q --cov=agenteval`
+- 70% test coverage across 630 tests: run `pytest -q --cov=agenteval`
 - Comprehensive error handling
 - Well-documented code
 
@@ -228,13 +228,13 @@ ______________________________________________________________________
 
    - Dependency injection for testability
    - OpenTelemetry integration
-   - 70% coverage across 739 tests
+   - 69% coverage across 630 tests
 
 1. **Comprehensive Testing**
 
    - 10 realistic personas
    - 50+ security attack patterns
-   - 13 evaluation metrics
+   - 11 evaluation metrics
 
 1. **AWS Native**
 
@@ -249,7 +249,7 @@ ______________________________________________________________________
 | Metric                 | Value                         |
 | ---------------------- | ----------------------------- |
 | **Lines of Code**      | ~8,000+                       |
-| **Test Coverage**      | 70% (739 tests)               |
+| **Test Coverage**      | 70% (630 tests)               |
 | **AWS Services**       | 6                             |
 | **Agent Types**        | 3                             |
 | **Personas**           | 10                            |
@@ -310,5 +310,5 @@ ______________________________________________________________________
 We've built something unique that solves a real problem. Our trace-based root cause analysis is
 truly innovative and provides value that no other evaluation platform offers.
 
-**Team**: AgentEval Team **Hackathon**: AWS AI Agent Global Hackathon 2025 **Status**: ✅ Ready for
-Submission
+**Team**: Issac Jose Ignatius **Hackathon**: AWS AI Agent Global Hackathon 2025 **Status**: ✅ Ready
+for Submission

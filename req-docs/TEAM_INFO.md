@@ -1,17 +1,16 @@
-# Team Information & Eligibility Declaration
+# Solo Developer Information & Eligibility Declaration
 
-Fill out this document prior to submission. All team members must confirm the statements below.
+Fill out this document prior to submission.
 
-## 1. Team Roster
+## 1. Developer Information
 
-| Name                | Email            | Country/Region of Residence | Affiliation (company/school) | Role         |
-| ------------------- | ---------------- | --------------------------- | ---------------------------- | ------------ |
-| _Example: Alex Tan_ | alex@example.com | Singapore                   | AgentEval Pte Ltd            | Product Lead |
-|                     |                  |                             |                              |              |
+| Name                | Email                  | Country/Region of Residence | Affiliation (company/school) | Role           |
+| ------------------- | ---------------------- | --------------------------- | ---------------------------- | -------------- |
+| Issac Jose Ignatius | issac.jose@example.com | Singapore                   | Independent Developer        | Solo Developer |
 
 ## 2. Eligibility Checklist (Section 3 of Official Rules)
 
-Each team member must initial next to the statements confirming compliance.
+Confirm compliance with the statements below.
 
 | Statement                                                                                                                       | Initials |
 | ------------------------------------------------------------------------------------------------------------------------------- | -------- |
@@ -38,10 +37,9 @@ Each team member must initial next to the statements confirming compliance.
 
 ## 5. Signatures
 
-| Name | Signature | Date (SGT) |
-| ---- | --------- | ---------- |
-|      |           |            |
-|      |           |            |
+| Name                | Signature | Date (SGT) |
+| ------------------- | --------- | ---------- |
+| Issac Jose Ignatius |           |            |
 
 Store the completed and signed PDF (scan acceptable) in `req-docs/signatures/TEAM_INFO.pdf`. Retain
-originals for verification.
+original for verification.

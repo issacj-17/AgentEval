@@ -503,7 +503,7 @@ when calling the PutItem operation: Requested resource not found
 
 **Solution**:
 
-1. Create DynamoDB tables using CloudFormation or AWS CLI
+1. Run the setup script: `./scripts/setup-live-demo.sh --region us-east-1`
 1. Verify table names in environment configuration
 1. Ensure IAM permissions for DynamoDB operations
 
@@ -558,10 +558,13 @@ ______________________________________________________________________
 
 ## Next Steps for Production
 
-1. **Infrastructure as Code**
+**Note**: Production infrastructure deployment is planned as future work.
 
-   - Create CloudFormation/Terraform templates
-   - Automate AWS resource provisioning
+1. **Infrastructure as Code** (Future Work)
+
+   - CloudFormation/Terraform templates for production deployment
+   - Automated AWS resource provisioning via IaC
+   - ECS Fargate deployment with ALB
    - Set up CI/CD pipeline
 
 1. **Monitoring & Alerting**

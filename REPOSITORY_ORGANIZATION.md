@@ -64,12 +64,12 @@ aws-agents/
 │       └── ASSET_LICENSES.md       Asset licensing info
 │
 ├── 🏗️ Infrastructure & Configuration
-│   ├── infrastructure/             CloudFormation templates & IAM policies
+│   ├── infrastructure/             CloudFormation templates (future work)
 │   ├── architecture/               Architecture diagrams (Mermaid)
 │   ├── personas/                   Persona library (YAML)
 │   ├── attacks/                    Red team attack library (YAML)
 │   ├── metrics/                    Evaluation metrics library (YAML)
-│   └── docs/                       Deployment documentation
+│   └── docs/                       Deployment documentation (future work)
 │
 ├── 📝 Configuration Files
 │   ├── pyproject.toml              Python project configuration
@@ -369,5 +369,5 @@ All requirements met:
 
 ______________________________________________________________________
 
-**Last Verified**: October 2025 **Repository**: aws-agents **Team**: AgentEval Team **Hackathon**:
-AWS AI Agent Global Hackathon 2025
+**Last Verified**: October 2025 **Repository**: aws-agents **Team**: Issac Jose Ignatius
+**Hackathon**: AWS AI Agent Global Hackathon 2025

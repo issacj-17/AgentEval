@@ -720,7 +720,7 @@ ______________________________________________________________________
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/aws-agents/aws-agents.git
+git clone https://github.com/issacj-17/AgentEval.git
 cd aws-agents
 
 # 2. Create virtual environment
@@ -1175,7 +1175,7 @@ ______________________________________________________________________
 
 ### Project Links
 
-- **GitHub Repository:** https://github.com/aws-agents/aws-agents
+- **GitHub Repository:** https://github.com/issacj-17/AgentEval
 - **Documentation:** https://agenteval.dev/docs
 - **Demo Video:** https://youtube.com/watch?v=...
 - **Deployed Application:** https://app.agenteval.dev

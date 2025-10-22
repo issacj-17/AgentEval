@@ -1,14 +1,14 @@
 # AgentEval - AWS AI Agent Global Hackathon Submission Guide
 
 **Project**: AgentEval - Multi-Agent AI Evaluation Platform with Trace-Based Root Cause Analysis
-**Team**: AgentEval Team **Submission Date**: October 2025 **Hackathon**: AWS AI Agent Global
-Hackathon 2025
+**Developer**: Issac Jose Ignatius **Submission Date**: October 2025 **Hackathon**: AWS AI Agent
+Global Hackathon 2025
 
 ## 📌 Submission Snapshot (Updated 2025-10-22 06:45 SGT)
 
 - **Submission deadline:** Oct 22 2025 17:00 PT (Oct 23 2025 08:00 SGT). All freeze checkpoints
   align with this window.
-- **Testing status:** 739 tests passing with 70 % coverage (`FINAL_COMPREHENSIVE_TEST_REPORT.md`,
+- **Testing status:** 630 tests passing with 70 % coverage (`FINAL_COMPREHENSIVE_TEST_REPORT.md`,
   `htmlcov/` export dated 2025-10-20).
 - **Demo video:** ≤3 min walkthrough in production; placeholder link below will be swapped by
   Oct 22 2025 16:00 SGT.
@@ -115,8 +115,8 @@ aws-agents/
 ├── attacks/                    # Red team attack library
 │   └── attack_library.yaml     # 50+ attack patterns
 │
-├── infrastructure/             # AWS infrastructure as code
-│   └── cloudformation/         # CloudFormation templates
+├── infrastructure/             # AWS infrastructure (future work)
+│   └── cloudformation/         # CloudFormation templates (future)
 │
 └── .archive/                   # Development artifacts (not for review)
 ```
@@ -153,7 +153,7 @@ ______________________________________________________________________
 **3. Technical Execution (50%)**
 
 - **Architecture**: Production-grade FastAPI + OpenTelemetry + AWS services
-- **Quality**: 70% coverage across 739 tests, comprehensive error handling
+- **Quality**: 69% coverage across 630 tests, comprehensive error handling
 - **Documentation**: Complete technical docs in `req-docs/TAD_Technical_Architecture.md`
 - **Reproducibility**: Automated setup/teardown scripts in `scripts/`
 
@@ -332,11 +332,11 @@ ______________________________________________________________________
 
 | Metric                  | Value                         |
 | ----------------------- | ----------------------------- |
-| **Test Coverage**       | 70% (739 tests)               |
+| **Test Coverage**       | 70% (630 tests)               |
 | **Agent Types**         | 3 (Persona, Red Team, Judge)  |
 | **Personas**            | 10 pre-configured             |
 | **Attack Patterns**     | 50+                           |
-| **Evaluation Metrics**  | 13                            |
+| **Evaluation Metrics**  | 11                            |
 | **Lines of Code**       | ~8,000+                       |
 | **Documentation Pages** | 15+                           |
 | **AWS Services**        | 6                             |
@@ -442,13 +442,13 @@ ______________________________________________________________________
 
 ## 📞 Support & Contact
 
-### **Team Information**
+### **Developer Information**
 
 See `req-docs/TEAM_INFO.md` for:
 
-- Team member details
+- Solo developer details
 - Contact information
-- Contribution breakdown
+- Project development information
 
 ### **Issues & Questions**
 
@@ -495,7 +495,7 @@ ______________________________________________________________________
 ### **Technical Excellence**
 
 - Production-grade architecture with dependency injection
-- Comprehensive test coverage (70% across 739 tests)
+- Comprehensive test coverage (70% across 630 tests)
 - AWS best practices (IAM, encryption, monitoring)
 - OpenTelemetry integration for observability
 
@@ -535,5 +535,5 @@ unique and provides value that no other evaluation platform offers.
 
 ______________________________________________________________________
 
-**Last Updated**: October 2025 **Version**: 1.0 **Team**: AgentEval Team **Hackathon**: AWS AI Agent
-Global Hackathon 2025
+**Last Updated**: October 2025 **Version**: 1.0 **Developer**: Issac Jose Ignatius **Hackathon**:
+AWS AI Agent Global Hackathon 2025

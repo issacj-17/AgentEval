@@ -19,7 +19,7 @@ root cause analysis.
 
 - **Submission deadline:** Oct 22 2025 17:00 PT (Oct 23 2025 08:00 SGT) — all submission materials
   target this cut-off.
-- **Test evidence:** 739 tests passing with 70 % coverage (`FINAL_COMPREHENSIVE_TEST_REPORT.md`,
+- **Test evidence:** 630 tests passing with 70 % coverage (`FINAL_COMPREHENSIVE_TEST_REPORT.md`,
   `htmlcov/` snapshot from 2025-10-20).
 - **Demo video:** Final ≤3 min walkthrough recording in progress; YouTube link will land in
   `SUBMISSION_GUIDE.md` by Oct 22 2025 16:00 SGT.
@@ -905,8 +905,8 @@ agenteval/
 ## 💬 Support
 
 - **GitHub Issues**:
-  [Report bugs or request features](https://github.com/aws-agents/aws-agents/issues)
-- **Email**: team@agenteval.dev
+  [Report bugs or request features](https://github.com/issacj-17/AgentEval/issues)
+- **Email**: issac.jose@example.com
 - **Documentation**: [Full docs](https://agenteval.dev/docs)
 
 ## 🏆 Acknowledgments
@@ -920,4 +920,4 @@ ______________________________________________________________________
 
 **Built for AWS AI Agent Global Hackathon 2025**
 
-Made with ❤️ by the AgentEval Team
+Made with ❤️ by Issac Jose Ignatius
