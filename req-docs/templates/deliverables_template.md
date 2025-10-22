@@ -146,7 +146,7 @@ ______________________________________________________________________
 
   | Package   | Version | License | Notes                     |
   | --------- | ------- | ------- | ------------------------- |
-  | `fastapi` | `[ ]`   | MIT     | `[Included in NOTICE.md]` |
+  | `fastapi` | `[ ]`   | Permissive | `[Included in NOTICE.md]` |
 
 - **Media Assets:**
 

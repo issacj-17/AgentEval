@@ -910,7 +910,7 @@ ______________________________________________________________________
 - [ ] 3-minute demonstration video (YouTube link)
 - [ ] URL to deployed project (AWS CloudFormation)
 - [ ] README with installation instructions
-- [ ] LICENSE file (MIT)
+- [ ] LICENSE file (permissive)
 
 ### 6.2 Post-Hackathon Success Metrics (90-Day Plan)
 
@@ -1173,7 +1173,7 @@ ______________________________________________________________________
 
 **Intellectual Property:**
 
-- **Open Source Core:** MIT License (permissive)
+- **Open Source Core:** Permissive license
 - **Commercial Features:** Proprietary (trade secrets)
 - **Trace Correlation Algorithm:** Patent pending (provisional filed)
 - **Brand Trademarks:** AgentEval™ (registration in progress)

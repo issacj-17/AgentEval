@@ -708,7 +708,7 @@ agenteval/
 ├── docker-compose.yml                  # Local development
 ├── README.md                           # Project README
 ├── CONTRIBUTING.md                     # Contribution guidelines
-├── LICENSE                             # MIT License
+├── LICENSE                             # Project license
 └── CHANGELOG.md                        # Version history
 ```
 
@@ -1141,7 +1141,7 @@ ______________________________________________________________________
 - [ ] Demonstration video (3 minutes, uploaded to YouTube)
 - [ ] URL to deployed project (AWS deployment)
 - [ ] README with installation instructions
-- [ ] LICENSE file (MIT)
+- [ ] LICENSE file (permissive)
 
 ### Hackathon Requirements Verification
 
@@ -1252,7 +1252,7 @@ ______________________________________________________________________
 ______________________________________________________________________
 
 **Last Updated:** October 11, 2025 **Document Version:** 1.0 **Status:** Production-Ready MVP
-**License:** MIT
+**License:** Permissive
 
 ______________________________________________________________________
 

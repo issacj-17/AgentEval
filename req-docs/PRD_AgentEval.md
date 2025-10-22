@@ -1313,7 +1313,7 @@ ______________________________________________________________________
 - [ ] 3-minute demo video
 - [ ] Deployed AWS project
 - [ ] Architecture diagram
-- [ ] MIT license
+- [ ] License file included
 
 ______________________________________________________________________
 

@@ -881,7 +881,7 @@ ______________________________________________________________________
 - [x] All source code committed ✅
 - [x] Complete directory structure ✅
 - [x] Installation instructions in README ✅
-- [x] License file (MIT) ✅
+- [x] License file (permissive) ✅
 - [x] .gitignore properly configured ✅
 - [x] Repository made public ✅
 

@@ -7,9 +7,9 @@ This project is distributed for the AWS AI Agent Global Hackathon 2025.
 AgentEval uses open-source components. The following libraries are included under their respective
 licenses:
 
-- FastAPI (MIT License)
+- FastAPI
 - Uvicorn (BSD License)
-- Pydantic & pydantic-settings (MIT License)
+- Pydantic & pydantic-settings
 - boto3 / aioboto3 (Apache License 2.0)
 - httpx (BSD License)
 - aiofiles (Apache License 2.0)
@@ -17,11 +17,11 @@ licenses:
 - structlog (Apache License 2.0)
 - tenacity (Apache License 2.0)
 - python-dotenv (BSD License)
-- pytest, pytest-asyncio, pytest-cov, pytest-mock (MIT License)
-- black (MIT License)
-- isort (MIT License)
-- flake8 (MIT License)
-- mypy (MIT License)
+- pytest, pytest-asyncio, pytest-cov, pytest-mock
+- black
+- isort
+- flake8
+- mypy
 
 Full license texts are available from the respective upstream projects. A generated Software Bill of
 Materials (SBOM) should be produced for each release using `uv pip list --format=freeze` or

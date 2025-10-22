@@ -13,7 +13,7 @@ aws-agents/
 │   ├── README.md                    ★ START HERE - Main documentation
 │   ├── SUBMISSION_GUIDE.md          ★ FOR JUDGES - Navigation & evaluation guide
 │   ├── LIVE_DEMO_GUIDE.md          Detailed live demo instructions
-│   ├── LICENSE                      MIT License
+│   ├── LICENSE                      Project license
 │   ├── NOTICE.md                    Third-party notices
 │   └── ATTRIBUTIONS.md              Dependency licenses
 │
@@ -256,7 +256,7 @@ ______________________________________________________________________
 | `docs/DEPLOYMENT.md`      | Deployment guide                  |
 | `demo/README.md`          | Demo comparison & troubleshooting |
 | `architecture/diagram.md` | Mermaid architecture diagram      |
-| `LICENSE`                 | MIT License text                  |
+| `LICENSE`                 | License text                      |
 | `NOTICE.md`               | Third-party notices               |
 | `ATTRIBUTIONS.md`         | Dependency licenses               |
 

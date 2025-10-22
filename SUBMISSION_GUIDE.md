@@ -65,7 +65,7 @@ aws-agents/
 ├── README.md                    # Main documentation (START HERE)
 ├── SUBMISSION_GUIDE.md          # This file - navigation guide
 ├── LIVE_DEMO_GUIDE.md          # Detailed demo instructions
-├── LICENSE                      # MIT License
+├── LICENSE                      # License file
 ├── NOTICE.md                    # Third-party attributions
 ├── ATTRIBUTIONS.md              # Dependency licenses
 │
@@ -387,7 +387,7 @@ ______________________________________________________________________
 
 ### **Compliance**
 
-- ✅ MIT License
+- ✅ License file included
 - ✅ Third-party attributions documented
 - ✅ No proprietary dependencies
 - ✅ Open-source friendly
