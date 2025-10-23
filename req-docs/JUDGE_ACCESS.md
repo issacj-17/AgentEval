@@ -45,13 +45,7 @@ credentials after judging.
 - API latency budget: \<200 ms p95 (observed)
 - Supported AWS regions: `us-east-1` (Bedrock), `us-west-2` (SageMaker fallback)
 
-## 6. Support Contact
-
-- Email: support@agenteval.dev
-- Slack: `#hackathon-support` (invitation link included in submission)
-- On-call engineer (Oct 20–Nov 13): +65-0000-0000
-
-## 7. Contingency
+## 6. Contingency
 
 If the hosted environment becomes unavailable, provide judges with:
 
